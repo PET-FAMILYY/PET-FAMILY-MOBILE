@@ -6,10 +6,13 @@ import {
   StyleSheet,
   StatusBar,
   Image,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../src/providers/AuthProvider';
 
 const PURPLE = '#7C3AED';
 const PURPLE_DARK = '#5B21B6';
@@ -27,22 +30,32 @@ const MEMBERS = [
 
 const TECHS = [
   { name: 'React Native', desc: 'Framework mobile', icon: 'phone-portrait' },
-  { name: 'Expo', desc: 'Ambiente de desenvolvimento', icon: 'rocket' },
-  { name: 'TypeScript', desc: 'Código tipado', icon: 'code-slash' },
   { name: 'Expo Router', desc: 'Navegação entre telas', icon: 'map' },
-  { name: 'AsyncStorage', desc: 'Persistência local', icon: 'save' },
+  { name: 'TanStack Query', desc: 'Estado de servidor e cache', icon: 'sync' },
+  { name: 'Axios', desc: 'Cliente HTTP para a API Java', icon: 'swap-horizontal' },
+  { name: 'Expo SecureStore', desc: 'Sessão persistida com segurança', icon: 'lock-closed' },
+  { name: 'Spring Boot', desc: 'API REST (JWT, JPA, Flyway)', icon: 'server' },
 ];
 
 const FEATURES = [
-  'Acompanhamento preventivo personalizado',
-  'Lembretes de vacinas, check-ups e consultas',
-  'Assistente IA simulada para orientação veterinária',
-  'Dashboard clínico com indicadores mockados',
-  'Cadastro do pet com histórico e preferências',
-  'Agendamento digital com confirmação',
+  'Login e cadastro reais, com sessão persistida via SecureStore',
+  'CRUD completo de pets integrado à API',
+  'CRUD completo de cuidados preventivos (perfil Veterinário)',
+  'Agendamento e acompanhamento de consultas',
+  'Dashboard clínico com indicadores reais (perfil Veterinário)',
+  'Assistente de orientação integrado à API (perfil Tutor)',
 ];
 
 export default function AboutScreen() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert('Sair', 'Deseja encerrar sua sessão?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Sair', style: 'destructive', onPress: () => logout() },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={PURPLE_DARK} />
@@ -60,7 +73,7 @@ export default function AboutScreen() {
         >
           <View style={styles.logoCircle}>
             <Image
-              source={require('../assets/logo.png')}
+              source={require('../../assets/logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -81,6 +94,35 @@ export default function AboutScreen() {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <View style={styles.iconBox}>
+                <Ionicons name="person-circle-outline" size={20} color={PURPLE} />
+              </View>
+              <Text style={styles.cardTitle}>Minha conta</Text>
+            </View>
+
+            <View style={styles.accountRow}>
+              <Text style={styles.accountLabel}>Nome</Text>
+              <Text style={styles.accountValue}>{user?.nome}</Text>
+            </View>
+            <View style={styles.accountRow}>
+              <Text style={styles.accountLabel}>E-mail</Text>
+              <Text style={styles.accountValue}>{user?.email}</Text>
+            </View>
+            <View style={styles.accountRow}>
+              <Text style={styles.accountLabel}>Perfil</Text>
+              <View style={styles.rolePill}>
+                <Text style={styles.rolePillText}>{user?.role === 'VETERINARIO' ? 'Veterinário' : 'Tutor'}</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
+              <Ionicons name="log-out-outline" size={18} color="#EF4444" />
+              <Text style={styles.logoutText}>Sair da conta</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconBox}>
                 <Ionicons name="paw" size={20} color={PURPLE} />
               </View>
               <Text style={styles.cardTitle}>Sobre o projeto</Text>
@@ -88,9 +130,10 @@ export default function AboutScreen() {
 
             <Text style={styles.cardText}>
               O <Text style={styles.bold}>Pet Family</Text> é um MVP criado para
-              melhorar a continuidade do cuidado veterinário. A proposta conecta
-              tutor, pet e clínica por meio de lembretes, acompanhamento preventivo,
-              agendamento e uma IA simulada de apoio.
+              melhorar a continuidade do cuidado veterinário. O app conecta
+              tutor, pet e clínica por meio de lembretes preventivos,
+              agendamento de consultas e um assistente de apoio — tudo
+              integrado a uma API Spring Boot real.
             </Text>
           </View>
 
@@ -152,13 +195,14 @@ export default function AboutScreen() {
             <View style={styles.footerIcon}>
               <Ionicons name="school" size={22} color={PURPLE} />
             </View>
-            <Text style={styles.footerTitle}>Protótipo acadêmico</Text>
+            <Text style={styles.footerTitle}>Projeto acadêmico</Text>
             <Text style={styles.footerText}>
-              Desenvolvido para o Challenge FIAP 2026. MVP funcional com dados
-              simulados, sem backend, sem WhatsApp real e sem IA real.
+              Desenvolvido para a Sprint 3 de Mobile Application Development.
+              O assistente de orientação usa respostas geradas por regras no
+              backend (não é uma IA generativa de terceiros).
             </Text>
             <View style={styles.footerDivider} />
-            <Text style={styles.footerVersion}>Pet Family v1.0.0 • FIAP 2026</Text>
+            <Text style={styles.footerVersion}>Pet Family v1.0.0</Text>
           </View>
 
           <View style={styles.bottomPad} />
@@ -276,6 +320,31 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: PURPLE,
   },
+
+  accountRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  accountLabel: { fontSize: 13, color: MUTED, fontWeight: '600' },
+  accountValue: { fontSize: 13, color: TEXT, fontWeight: '700', maxWidth: '65%', textAlign: 'right' },
+  rolePill: { backgroundColor: PURPLE_LIGHT, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  rolePillText: { fontSize: 12, color: PURPLE, fontWeight: '800' },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: '#FEF2F2',
+  },
+  logoutText: { fontSize: 14, fontWeight: '800', color: '#EF4444' },
+
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
