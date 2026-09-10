@@ -38,9 +38,6 @@ clínica, sem mocks e sem dados fictícios nos fluxos avaliados.
 | Expo SecureStore | Persistência segura do token JWT |
 | @expo/vector-icons, expo-linear-gradient | UI/design |
 
-O backend consumido é o PET-FAMILY-JAVA (Spring Boot + Spring Security JWT + JPA + Flyway),
-mantido no repositório `PET-FAMILY-JAVA-entrega3`. Nenhum arquivo do backend foi alterado nesta
-entrega — o mobile apenas consome os endpoints já existentes.
 
 ---
 
@@ -274,31 +271,6 @@ Roteiro manual recomendado antes da gravação do vídeo:
 
 ---
 
-## Limitações reais
-
-- A API não tem refresh token — sessões expiram em 24h e exigem novo login (comportamento
-  esperado, tratado no app).
-- Não existe endpoint público para criar uma conta Veterinário; fora do perfil `dev` do backend,
-  essa conta precisaria ser provisionada diretamente no banco (fora do escopo desta entrega, que
-  não altera o Java).
-- A API não bloqueia exclusão de pets ou tutores com dependências (consultas, lembretes) — o app
-  apenas avisa o usuário antes de confirmar, mas o bloqueio de negócio em si não existe no
-  backend.
-- Consultas não têm um endpoint de exclusão ou edição genérico — só `agendar`, `cancelar` e
-  `realizar` — por isso não foram escolhidas como um dos dois CRUDs.
-- O assistente usa respostas por regras no backend, não uma IA generativa real (ver seção acima).
-
----
-
-
-
-## Entrega pelo GitHub Classroom
-
-A entrega deve ocorrer exclusivamente pelo repositório oficial do GitHub Classroom, preservando o
-histórico de commits existente. O link do vídeo publicado no YouTube deve ser informado no campo
-indicado acima antes do envio final.
-
----
 
 ## Integrantes
 
