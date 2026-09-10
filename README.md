@@ -243,34 +243,6 @@ tudo passa pelos hooks de `src/hooks`.
 
 ---
 
-## Testes executados
-
-Executado neste ambiente de desenvolvimento:
-
-- `npx tsc --noEmit` — sem erros de tipos.
-- `npx expo export --platform android` — bundling completo com Metro, sem erros de import ou
-  resolução, confirmando que todas as rotas (incluindo as dinâmicas `pets/[id]` e
-  `agenda/[id]`) e todos os módulos resolvem corretamente.
-
-Roteiro manual recomendado antes da gravação do vídeo:
-
-1. Com a API Java rodando (`mvnw spring-boot:run`, perfil `dev`), abrir o app e cadastrar uma
-   conta nova (Tutor) — confirmar que loga automaticamente.
-2. Fechar o app completamente e reabrir — confirmar que a sessão persiste sem pedir login.
-3. Cadastrar um pet, editar e excluir (com o alerta de dependências, se houver consultas ou
-   lembretes vinculados).
-4. Deslogar e logar como `veterinario@petfamily.com` — criar, editar e excluir um lembrete para
-   um pet de algum tutor demo; deslogar e logar como esse tutor para ver o lembrete e concluí-lo.
-5. Agendar uma consulta como tutor; como veterinário, realizar ou cancelar essa consulta.
-6. Conferir o Dashboard (disponível apenas para o perfil Veterinário).
-7. Testar sem internet ou com a API desligada — confirmar mensagem de erro e botão de retry.
-8. Testar submissão de formulário inválido (data passada em lembrete ou consulta, campos vazios).
-9. Deslogar e tentar voltar para uma tela interna — confirmar bloqueio e redirecionamento.
-10. Logar com uma conta e depois com outra no mesmo aparelho — confirmar que os dados da conta
-    anterior não aparecem (cache limpo no logout).
-
----
-
 
 ## Integrantes
 
