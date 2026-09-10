@@ -14,48 +14,41 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../src/constants/colors';
-import { getUser, setLoggedIn } from '../src/services/storage';
+import { Colors } from '../../src/constants/colors';
+import { isValidEmail } from '../../src/utils/validators';
+import { useLoginMutation } from '../../src/hooks/useAuthMutations';
+import { useAuth } from '../../src/providers/AuthProvider';
+import { ApiError } from '../../src/services/api';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { sessionExpired } = useAuth();
+  const loginMutation = useLoginMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
-  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const e: typeof errors = {};
     if (!email.trim()) e.email = 'E-mail obrigatório';
-    else if (!/\S+@\S+\.\S+/.test(email)) e.email = 'E-mail inválido';
+    else if (!isValidEmail(email)) e.email = 'E-mail inválido';
     if (!password) e.password = 'Senha obrigatória';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleLogin = async () => {
-    if (!validate()) return;
-    setLoading(true);
-    try {
-      const user = await getUser();
-      if (!user) {
-        setErrors({ general: 'Nenhuma conta encontrada. Cadastre-se primeiro.' });
-        return;
+  const handleLogin = () => {
+    if (!validate() || loginMutation.isPending) return;
+    loginMutation.mutate(
+      { email: email.trim().toLowerCase(), senha: password },
+      {
+        onError: (err) => {
+          const message = err instanceof ApiError ? err.message : 'Não foi possível entrar. Tente novamente.';
+          setErrors({ general: message });
+        },
       }
-      if (user.email !== email.trim().toLowerCase()) {
-        setErrors({ email: 'E-mail não encontrado' });
-        return;
-      }
-      if (user.password !== password) {
-        setErrors({ password: 'Senha incorreta' });
-        return;
-      }
-      await setLoggedIn(true);
-      router.replace('/');
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   return (
@@ -70,10 +63,9 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo */}
           <View style={styles.logoWrap}>
             <Image
-              source={require('../assets/logo.png')}
+              source={require('../../assets/logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -82,6 +74,13 @@ export default function LoginScreen() {
           <Text style={styles.title}>Bem-vindo de volta!</Text>
           <Text style={styles.subtitle}>Entre na sua conta para continuar</Text>
 
+          {sessionExpired && !errors.general && (
+            <View style={styles.generalError}>
+              <Ionicons name="time-outline" size={16} color={Colors.errorRed} />
+              <Text style={styles.generalErrorText}>Sua sessão expirou. Faça login novamente.</Text>
+            </View>
+          )}
+
           {errors.general && (
             <View style={styles.generalError}>
               <Ionicons name="alert-circle" size={16} color={Colors.errorRed} />
@@ -89,7 +88,6 @@ export default function LoginScreen() {
             </View>
           )}
 
-          {/* E-mail */}
           <Text style={styles.label}>E-mail</Text>
           <View style={[styles.inputWrap, errors.email ? styles.inputError : null]}>
             <Ionicons name="mail-outline" size={20} color={Colors.textLight} style={styles.inputIcon} />
@@ -106,7 +104,6 @@ export default function LoginScreen() {
           </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          {/* Senha */}
           <Text style={styles.label}>Senha</Text>
           <View style={[styles.inputWrap, errors.password ? styles.inputError : null]}>
             <Ionicons name="lock-closed-outline" size={20} color={Colors.textLight} style={styles.inputIcon} />
@@ -128,22 +125,26 @@ export default function LoginScreen() {
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-          {/* Botão entrar */}
           <TouchableOpacity
-            style={[styles.btn, loading && styles.btnDisabled]}
+            style={[styles.btn, loginMutation.isPending && styles.btnDisabled]}
             onPress={handleLogin}
-            disabled={loading}
+            disabled={loginMutation.isPending}
             activeOpacity={0.85}
           >
-            <Text style={styles.btnText}>{loading ? 'Entrando...' : 'Entrar'}</Text>
+            <Text style={styles.btnText}>{loginMutation.isPending ? 'Entrando...' : 'Entrar'}</Text>
           </TouchableOpacity>
 
-          {/* Link cadastro */}
           <View style={styles.linkRow}>
             <Text style={styles.linkText}>Não tem conta? </Text>
             <TouchableOpacity onPress={() => router.replace('/register')}>
               <Text style={styles.link}>Criar conta</Text>
             </TouchableOpacity>
+          </View>
+
+          <View style={styles.demoBox}>
+            <Text style={styles.demoTitle}>Contas de demonstração (ambiente dev)</Text>
+            <Text style={styles.demoText}>Tutor: pedro@petfamily.com / senha123</Text>
+            <Text style={styles.demoText}>Veterinário: veterinario@petfamily.com / senha123</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -218,4 +219,13 @@ const styles = StyleSheet.create({
   linkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   linkText: { fontSize: 14, color: Colors.textSecondary },
   link: { fontSize: 14, fontWeight: '800', color: Colors.primary },
+
+  demoBox: {
+    marginTop: 28,
+    backgroundColor: Colors.primaryLight,
+    borderRadius: 14,
+    padding: 14,
+  },
+  demoTitle: { fontSize: 12, fontWeight: '800', color: Colors.primary, marginBottom: 6 },
+  demoText: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
 });

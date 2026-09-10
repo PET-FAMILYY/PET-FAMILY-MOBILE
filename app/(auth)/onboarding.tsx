@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../src/constants/colors';
+import { Colors } from '../../src/constants/colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,7 +24,7 @@ export default function OnboardingScreen() {
       <View style={styles.container}>
         <View style={styles.imageWrap}>
           <Image
-            source={require('../assets/mascoteTelaInicio.png')}
+            source={require('../../assets/mascoteTelaInicio.png')}
             style={styles.image}
             resizeMode="contain"
           />

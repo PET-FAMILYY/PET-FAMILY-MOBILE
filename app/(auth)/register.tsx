@@ -14,45 +14,54 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../src/constants/colors';
-import { saveUser, setLoggedIn } from '../src/services/storage';
+import { Colors } from '../../src/constants/colors';
+import { isValidEmail } from '../../src/utils/validators';
+import { useRegisterMutation } from '../../src/hooks/useAuthMutations';
+import { ApiError } from '../../src/services/api';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const registerMutation = useRegisterMutation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<{
-    name?: string; email?: string; password?: string; confirm?: string;
+    name?: string; email?: string; password?: string; confirm?: string; general?: string;
   }>({});
-  const [loading, setLoading] = useState(false);
 
   const validate = () => {
-    const e: typeof errors = {};     
-    if (!name.trim()) e.name = 'Nome obrigatório';      
-    if (!email.trim()) e.email = 'E-mail obrigatório';        
-    else if (!/\S+@\S+\.\S+/.test(email)) e.email = 'E-mail inválido';    
-    if (!password) e.password = 'Senha obrigatória';   
-    else if (password.length < 6) e.password = 'Mínimo de 6 caracteres';     
-    if (!confirm) e.confirm = 'Confirmação obrigatória';     
-    else if (confirm !== password) e.confirm = 'As senhas não coincidem';   
+    const e: typeof errors = {};
+    if (!name.trim()) e.name = 'Nome obrigatório';
+    if (!email.trim()) e.email = 'E-mail obrigatório';
+    else if (!isValidEmail(email)) e.email = 'E-mail inválido';
+    if (!password) e.password = 'Senha obrigatória';
+    else if (password.length < 6) e.password = 'Mínimo de 6 caracteres';
+    if (!confirm) e.confirm = 'Confirmação obrigatória';
+    else if (confirm !== password) e.confirm = 'As senhas não coincidem';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleRegister = async () => {
-    if (!validate()) return;
-    setLoading(true);
-    try {
-      await saveUser({ name: name.trim(), email: email.trim().toLowerCase(), password });
-      await setLoggedIn(true);
-      router.replace('/');
-    } finally {
-      setLoading(false);
-    }
+  const handleRegister = () => {
+    if (!validate() || registerMutation.isPending) return;
+    registerMutation.mutate(
+      {
+        nome: name.trim(),
+        email: email.trim().toLowerCase(),
+        senha: password,
+        telefone: phone.trim() || undefined,
+      },
+      {
+        onError: (err) => {
+          const message = err instanceof ApiError ? err.message : 'Não foi possível concluir o cadastro.';
+          setErrors({ general: message });
+        },
+      }
+    );
   };
 
   const field = (
@@ -80,7 +89,7 @@ export default function RegisterScreen() {
           value={value}
           onChangeText={v => {
             onChange(v);
-            setErrors(p => ({ ...p }));
+            setErrors(p => ({ ...p, general: undefined }));
           }}
           secureTextEntry={extra?.secure && !extra?.show}
           keyboardType={extra?.keyboardType ?? 'default'}
@@ -113,10 +122,9 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo */}
           <View style={styles.logoWrap}>
             <Image
-              source={require('../assets/logo.png')}
+              source={require('../../assets/logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -125,9 +133,19 @@ export default function RegisterScreen() {
           <Text style={styles.title}>Criar conta</Text>
           <Text style={styles.subtitle}>Cadastre-se para começar a cuidar do seu pet</Text>
 
+          {errors.general && (
+            <View style={styles.generalError}>
+              <Ionicons name="alert-circle" size={16} color={Colors.errorRed} />
+              <Text style={styles.generalErrorText}>{errors.general}</Text>
+            </View>
+          )}
+
           {field('Nome completo', name, setName, 'person-outline', 'Seu nome', errors.name)}
           {field('E-mail', email, setEmail, 'mail-outline', 'seu@email.com', errors.email, {
             keyboardType: 'email-address',
+          })}
+          {field('Telefone (opcional)', phone, setPhone, 'call-outline', '(11) 99999-0000', undefined, {
+            keyboardType: 'phone-pad',
           })}
           {field('Senha', password, setPassword, 'lock-closed-outline', 'Mínimo 6 caracteres', errors.password, {
             secure: true,
@@ -140,13 +158,17 @@ export default function RegisterScreen() {
             toggleShow: () => setShowConfirm(p => !p),
           })}
 
+          <Text style={styles.hint}>
+            O cadastro público cria uma conta do tipo Tutor. Contas de veterinário são provisionadas pela clínica.
+          </Text>
+
           <TouchableOpacity
-            style={[styles.btn, loading && styles.btnDisabled]}
+            style={[styles.btn, registerMutation.isPending && styles.btnDisabled]}
             onPress={handleRegister}
-            disabled={loading}
+            disabled={registerMutation.isPending}
             activeOpacity={0.85}
           >
-            <Text style={styles.btnText}>{loading ? 'Cadastrando...' : 'Cadastrar'}</Text>
+            <Text style={styles.btnText}>{registerMutation.isPending ? 'Cadastrando...' : 'Cadastrar'}</Text>
           </TouchableOpacity>
 
           <View style={styles.linkRow}>
@@ -180,6 +202,17 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '900', color: Colors.text, textAlign: 'center', marginBottom: 6 },
   subtitle: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginBottom: 28 },
 
+  generalError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
+    marginBottom: 16,
+  },
+  generalErrorText: { fontSize: 13, color: Colors.errorRed, flex: 1 },
+
   label: { fontSize: 14, fontWeight: '700', color: Colors.text, marginBottom: 8, marginTop: 8 },
   inputWrap: {
     flexDirection: 'row',
@@ -197,6 +230,8 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontSize: 15, color: Colors.text },
   eyeBtn: { padding: 4 },
   errorText: { fontSize: 12, color: Colors.errorRed, marginBottom: 4, marginLeft: 4 },
+
+  hint: { fontSize: 12, color: Colors.textLight, marginTop: 8, lineHeight: 17 },
 
   btn: {
     height: 56,
