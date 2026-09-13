@@ -3,6 +3,8 @@
 App de cuidado contínuo para pets, integrado à API Java PET-FAMILY-JAVA (Spring Boot).
 Sprint 3 — Mobile Application Development.
 
+📹 **Vídeo de apresentação (Sprint 3):** https://youtu.be/KfhxMpY1Bdk
+
 ---
 
 ## Problema e solução
@@ -84,13 +86,13 @@ seja aplicado:
 npx expo start -c
 ```
 
-#### Uso futuro com a API publicada (Railway)
+#### Usando a API publicada (Railway)
 
-A API Java ainda será publicada em produção no Railway. Quando isso acontecer, o app não precisa
-de nenhuma alteração de código — basta apontar o `.env` para a URL pública gerada pelo Railway:
+A API Java está publicada em produção no Railway. Para apontar o app para ela, basta definir no
+`.env`:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://<nome-do-projeto>.up.railway.app
+EXPO_PUBLIC_API_URL=https://pet-family-java-production.up.railway.app
 ```
 
 Depois de criar ou atualizar o `.env`, reinicie o Metro com `npx expo start -c` para que a nova
