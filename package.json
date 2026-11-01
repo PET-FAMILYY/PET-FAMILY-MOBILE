@@ -15,12 +15,14 @@
     "expo": "~51.0.28",
     "expo-constants": "~16.0.2",
     "expo-font": "~12.0.9",
-    "expo-linear-gradient": "^55.0.13",
+    "expo-linear-gradient": "~13.0.2",
     "expo-linking": "~6.3.1",
+    "expo-notifications": "~0.28.19",
     "expo-router": "~3.5.23",
     "expo-secure-store": "~13.0.2",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
+    "expo-system-ui": "~3.0.7",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
@@ -31,7 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@types/react": "~18.2.79",
-    "typescript": "^5.3.3"
+    "typescript": "~5.3.3"
   },
   "private": true
 }
