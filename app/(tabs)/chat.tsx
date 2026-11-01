@@ -21,7 +21,6 @@ import { EmptyState, LoadingState } from '../../src/components/StateViews';
 import { usePetsQuery } from '../../src/hooks/usePets';
 import { useInteracoesDoPetQuery, useCreateInteracaoIAMutation } from '../../src/hooks/useInteracoesIA';
 import { useAuth } from '../../src/providers/AuthProvider';
-import { ApiError } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
 import type { ChatMessage } from '../../src/types';
 
@@ -62,10 +61,19 @@ export default function ChatScreen() {
     if (!msg || !petId || createMutation.isPending) return;
     setInput('');
     createMutation.mutate(
-      { pergunta: msg, petId },
+      {
+        pergunta: msg,
+        petId,
+        petNome: selectedPet?.nome,
+        petEspecie: selectedPet?.especie,
+        petRaca: selectedPet?.raca ?? undefined,
+        petIdade: selectedPet?.idade ?? undefined,
+        petPeso: selectedPet?.peso ?? undefined,
+        petObservacoes: selectedPet?.observacoesSaude ?? undefined,
+      } as any,
       {
         onError: (err) => {
-          const message = err instanceof ApiError ? err.message : 'Não foi possível enviar sua pergunta.';
+          const message = err instanceof Error ? err.message : 'Não foi possível enviar sua pergunta.';
           Alert.alert('Erro', message);
         },
       }
@@ -76,7 +84,7 @@ export default function ChatScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
-        <EmptyState icon="lock-closed-outline" title="Área exclusiva do Tutor" subtitle="O assistente (POST /interacoes-ia) é restrito ao perfil Tutor na API." />
+        <EmptyState icon="lock-closed-outline" title="Área exclusiva do Tutor" subtitle="O assistente é restrito ao perfil Tutor." />
       </SafeAreaView>
     );
   }
@@ -92,7 +100,7 @@ export default function ChatScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Assistente Pet Family</Text>
-            <Text style={styles.headerNote}>Respostas geradas pela API (regras do backend)</Text>
+            <Text style={styles.headerNote}>Powered by Gemini · PetDoc</Text>
           </View>
         </View>
 
@@ -187,64 +195,41 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.gradientEnd },
-
   header: { paddingHorizontal: 16, paddingVertical: 12 },
   headerCenter: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   aiAvatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 42, height: 42, borderRadius: 21,
     backgroundColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
-    overflow: 'hidden',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)', overflow: 'hidden',
   },
   aiAvatarImg: { width: 38, height: 38 },
   headerTitle: { fontSize: 15, fontWeight: '800', color: Colors.white },
   headerNote: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
-
   petPicker: { gap: 8, marginTop: 12 },
   petChip: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7 },
   petChipActive: { backgroundColor: Colors.white },
   petChipText: { fontSize: 12, fontWeight: '700', color: Colors.white },
   petChipTextActive: { color: Colors.primary },
-
   list: { flex: 1, backgroundColor: '#EDE8F5' },
   listContent: { paddingVertical: 16 },
-
   quickWrap: { backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border, paddingVertical: 8 },
   quickList: { paddingHorizontal: 12, gap: 8 },
   quickBtn: {
-    backgroundColor: Colors.primaryLight,
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderWidth: 1,
-    borderColor: Colors.primary + '33',
+    backgroundColor: Colors.primaryLight, borderRadius: 20,
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderWidth: 1, borderColor: Colors.primary + '33',
   },
   quickText: { fontSize: 12, color: Colors.primary, fontWeight: '700' },
-
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: Colors.white,
-    gap: 10,
+    flexDirection: 'row', alignItems: 'flex-end',
+    paddingHorizontal: 12, paddingVertical: 10,
+    backgroundColor: Colors.white, gap: 10,
   },
   input: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: Colors.text,
-    maxHeight: 100,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
+    flex: 1, backgroundColor: Colors.background, borderRadius: 24,
+    paddingHorizontal: 16, paddingVertical: 10, fontSize: 15,
+    color: Colors.text, maxHeight: 100, borderWidth: 1.5, borderColor: Colors.border,
   },
   sendBtn: { borderRadius: 24, overflow: 'hidden' },
   sendBtnOff: { opacity: 0.5 },
