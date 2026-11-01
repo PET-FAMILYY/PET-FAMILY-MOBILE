@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { LembreteCard } from '../../../src/components/LembreteCard';
 import { LoadingState, ErrorState, EmptyState } from '../../../src/components/StateViews';
@@ -104,7 +104,7 @@ export default function AgendaScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
       >
-        <LinearGradient colors={['#3B0F8C', '#6D28D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+        <GradientHeader style={styles.header}>
           <View style={styles.headerTopRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.eyebrow}>SAÚDE DO PET</Text>
@@ -138,7 +138,7 @@ export default function AgendaScreen() {
               </View>
             </View>
           )}
-        </LinearGradient>
+        </GradientHeader>
 
         <View style={styles.sheet}>
           {!isVeterinario && (

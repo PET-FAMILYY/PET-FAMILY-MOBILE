@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { useDashboardQuery } from '../../src/hooks/useDashboard';
@@ -37,12 +38,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
       >
-        <LinearGradient
-          colors={[colors.gradientEnd, colors.gradientStart, colors.primaryMid]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.header}
-        >
+        <GradientHeader colors={[colors.gradientEnd, colors.gradientStart, colors.primaryMid]} style={styles.header}>
           <View style={styles.headerRow}>
             <View>
               <Text style={styles.headerTitle}>Dashboard Clínico</Text>
@@ -72,7 +68,7 @@ export default function DashboardScreen() {
               </View>
             </View>
           )}
-        </LinearGradient>
+        </GradientHeader>
 
         <View style={styles.sheet}>
           {isLoading ? (

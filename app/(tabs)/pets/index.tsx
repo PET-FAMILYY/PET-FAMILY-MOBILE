@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ThemeColors } from '../../../src/constants/colors';
 import { useTheme } from '../../../src/providers/ThemeProvider';
@@ -70,12 +70,7 @@ export default function PetsListScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
 
-      <LinearGradient
-        colors={[colors.gradientEnd, colors.gradientStart]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerGrad}
-      >
+      <GradientHeader style={styles.headerGrad}>
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.headerTitle}>Meus Pets</Text>
@@ -85,7 +80,7 @@ export default function PetsListScreen() {
             <Ionicons name="add" size={24} color={colors.white} />
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </GradientHeader>
 
       <View style={styles.content}>
         {isLoading ? (

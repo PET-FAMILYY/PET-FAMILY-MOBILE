@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import type { ThemeColors } from '../../../src/constants/colors';
@@ -46,7 +46,7 @@ export default function NewLembreteScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#3B0F8C" />
-      <LinearGradient colors={['#3B0F8C', '#6D28D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.headerGrad}>
+      <GradientHeader style={styles.headerGrad}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={22} color={colors.white} />
@@ -56,7 +56,7 @@ export default function NewLembreteScreen() {
             <Text style={styles.headerSub}>Cadastre um lembrete preventivo</Text>
           </View>
         </View>
-      </LinearGradient>
+      </GradientHeader>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>

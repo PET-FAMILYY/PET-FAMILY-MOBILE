@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ThemeColors } from '../../src/constants/colors';
@@ -125,12 +126,7 @@ function TutorConsultasScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
 
-      <LinearGradient
-        colors={[colors.gradientEnd, colors.gradientStart]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerGrad}
-      >
+      <GradientHeader style={styles.headerGrad}>
         <Text style={styles.headerTitle}>Agendar Consulta</Text>
         <Text style={styles.headerSub}>Marque com seu veterinário preferido</Text>
 
@@ -144,7 +140,7 @@ function TutorConsultasScreen() {
             {confirmed && <Ionicons name="checkmark-circle" size={20} color={colors.green} />}
           </View>
         )}
-      </LinearGradient>
+      </GradientHeader>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -285,10 +281,10 @@ function VetConsultasScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
-      <LinearGradient colors={[colors.gradientEnd, colors.gradientStart]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.headerGrad}>
+      <GradientHeader style={styles.headerGrad}>
         <Text style={styles.headerTitle}>Agenda Clínica</Text>
         <Text style={styles.headerSub}>Consultas futuras de todos os tutores</Text>
-      </LinearGradient>
+      </GradientHeader>
 
       <ScrollView
         style={styles.scroll}

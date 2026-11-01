@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../src/components/GradientHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useAuth } from '../../src/providers/AuthProvider';
@@ -70,7 +71,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={petsQuery.isRefetching} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
-        <LinearGradient colors={[colors.gradientEnd, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+        <GradientHeader colors={[colors.gradientEnd, colors.primary]} style={styles.header}>
           <View style={styles.headerTop}>
             <View>
               <Text style={styles.greeting}>Olá, {user?.nome?.split(' ')[0] ?? 'Tutor'}</Text>
@@ -121,7 +122,7 @@ export default function HomeScreen() {
               </View>
             </View>
           )}
-        </LinearGradient>
+        </GradientHeader>
 
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Acesso rápido</Text>

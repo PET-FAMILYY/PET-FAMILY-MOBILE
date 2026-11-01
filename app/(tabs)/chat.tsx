@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GradientHeader } from '../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { ChatBubble } from '../../src/components/ChatBubble';
 import { EmptyState, LoadingState } from '../../src/components/StateViews';
@@ -96,7 +97,7 @@ export default function ChatScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
 
-      <LinearGradient colors={[colors.gradientEnd, colors.gradientStart]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+      <GradientHeader style={styles.header}>
         <View style={styles.headerCenter}>
           <View style={styles.aiAvatar}>
             <Image source={require('../../assets/logo.png')} style={styles.aiAvatarImg} resizeMode="contain" />
@@ -124,7 +125,7 @@ export default function ChatScreen() {
             )}
           />
         )}
-      </LinearGradient>
+      </GradientHeader>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {pets.length === 0 ? (
