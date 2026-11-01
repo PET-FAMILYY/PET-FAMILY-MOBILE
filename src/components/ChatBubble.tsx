@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { ChatMessage } from '../types';
-import { Colors } from '../constants/colors';
+import type { ThemeColors } from '../constants/colors';
+import { useTheme } from '../providers/ThemeProvider';
 
 interface ChatBubbleProps {
   message: ChatMessage;
 }
 
 export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const isUser = message.sender === 'user';
 
   const formatTime = (date: Date) => {
@@ -34,7 +38,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginVertical: 4,
@@ -47,7 +51,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 6,
@@ -67,20 +71,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bubbleUser: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderBottomRightRadius: 4,
   },
   bubbleAI: {
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderBottomLeftRadius: 4,
   },
   text: {
     fontSize: 15,
     lineHeight: 21,
   },
-  textUser: { color: Colors.white },
-  textAI: { color: Colors.text },
+  textUser: { color: colors.white },
+  textAI: { color: colors.text },
   time: { fontSize: 10, marginTop: 4 },
   timeUser: { color: 'rgba(255,255,255,0.7)', textAlign: 'right' },
-  timeAI: { color: Colors.textLight },
+  timeAI: { color: colors.textLight },
 });

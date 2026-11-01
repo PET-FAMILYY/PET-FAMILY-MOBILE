@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../constants/colors';
+import type { ThemeColors } from '../constants/colors';
+import { useTheme } from '../providers/ThemeProvider';
 import type { PetRequest } from '../types/api';
 
 export const SPECIES: { value: string; label: string; icon: string }[] = [
@@ -38,6 +39,9 @@ interface PetFormProps {
 }
 
 export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submitting, submitLabel, onValuesChange }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [form, setForm] = useState<PetFormValues>(initialValues ?? emptyPetForm);
   const [errors, setErrors] = useState<Partial<Record<keyof PetFormValues, string>>>({});
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -92,7 +96,7 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
             <MaterialCommunityIcons
               name={s.icon as any}
               size={28}
-              color={form.especie === s.value ? Colors.primary : Colors.textLight}
+              color={form.especie === s.value ? colors.primary : colors.textLight}
               style={styles.speciesIcon}
             />
             <Text style={[styles.speciesLabel, form.especie === s.value && styles.speciesLabelActive]}>
@@ -100,7 +104,7 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
             </Text>
             {form.especie === s.value && (
               <View style={styles.speciesCheck}>
-                <Ionicons name="checkmark" size={12} color={Colors.white} />
+                <Ionicons name="checkmark" size={12} color={colors.white} />
               </View>
             )}
           </TouchableOpacity>
@@ -113,13 +117,13 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
       <View style={styles.fieldWrap}>
         <Text style={styles.fieldLabel}>Nome do pet *</Text>
         <View style={[styles.inputWrap, focusedField === 'nome' && styles.inputWrapFocused, errors.nome ? styles.inputError : null]}>
-          <Ionicons name="paw-outline" size={18} color={focusedField === 'nome' ? Colors.primary : Colors.textLight} style={styles.inputIcon} />
+          <Ionicons name="paw-outline" size={18} color={focusedField === 'nome' ? colors.primary : colors.textLight} style={styles.inputIcon} />
           <TextInput
             style={styles.inputInner}
             value={form.nome}
             onChangeText={v => update('nome', v)}
             placeholder="Ex: Rex, Luna, Mimi..."
-            placeholderTextColor={Colors.textLight}
+            placeholderTextColor={colors.textLight}
             onFocus={() => setFocusedField('nome')}
             onBlur={() => setFocusedField(null)}
           />
@@ -130,13 +134,13 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
       <View style={styles.fieldWrap}>
         <Text style={styles.fieldLabel}>Raça</Text>
         <View style={[styles.inputWrap, focusedField === 'raca' && styles.inputWrapFocused]}>
-          <Ionicons name="ribbon-outline" size={18} color={focusedField === 'raca' ? Colors.primary : Colors.textLight} style={styles.inputIcon} />
+          <Ionicons name="ribbon-outline" size={18} color={focusedField === 'raca' ? colors.primary : colors.textLight} style={styles.inputIcon} />
           <TextInput
             style={styles.inputInner}
             value={form.raca}
             onChangeText={v => update('raca', v)}
             placeholder="Ex: Golden Retriever, SRD..."
-            placeholderTextColor={Colors.textLight}
+            placeholderTextColor={colors.textLight}
             onFocus={() => setFocusedField('raca')}
             onBlur={() => setFocusedField(null)}
           />
@@ -147,13 +151,13 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
         <View style={[styles.fieldWrap, { flex: 1 }]}>
           <Text style={styles.fieldLabel}>Idade (anos)</Text>
           <View style={[styles.inputWrap, focusedField === 'idade' && styles.inputWrapFocused, errors.idade ? styles.inputError : null]}>
-            <Ionicons name="calendar-outline" size={18} color={focusedField === 'idade' ? Colors.primary : Colors.textLight} style={styles.inputIcon} />
+            <Ionicons name="calendar-outline" size={18} color={focusedField === 'idade' ? colors.primary : colors.textLight} style={styles.inputIcon} />
             <TextInput
               style={styles.inputInner}
               value={form.idade}
               onChangeText={v => update('idade', v)}
               placeholder="Ex: 3"
-              placeholderTextColor={Colors.textLight}
+              placeholderTextColor={colors.textLight}
               keyboardType="numeric"
               onFocus={() => setFocusedField('idade')}
               onBlur={() => setFocusedField(null)}
@@ -164,13 +168,13 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
         <View style={[styles.fieldWrap, { flex: 1 }]}>
           <Text style={styles.fieldLabel}>Peso (kg)</Text>
           <View style={[styles.inputWrap, focusedField === 'peso' && styles.inputWrapFocused, errors.peso ? styles.inputError : null]}>
-            <Ionicons name="barbell-outline" size={18} color={focusedField === 'peso' ? Colors.primary : Colors.textLight} style={styles.inputIcon} />
+            <Ionicons name="barbell-outline" size={18} color={focusedField === 'peso' ? colors.primary : colors.textLight} style={styles.inputIcon} />
             <TextInput
               style={styles.inputInner}
               value={form.peso}
               onChangeText={v => update('peso', v)}
               placeholder="Ex: 12.5"
-              placeholderTextColor={Colors.textLight}
+              placeholderTextColor={colors.textLight}
               keyboardType="decimal-pad"
               onFocus={() => setFocusedField('peso')}
               onBlur={() => setFocusedField(null)}
@@ -190,7 +194,7 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
             value={form.observacoesSaude}
             onChangeText={v => update('observacoesSaude', v)}
             placeholder="Alergias, medicamentos, cirurgias..."
-            placeholderTextColor={Colors.textLight}
+            placeholderTextColor={colors.textLight}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -207,7 +211,7 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
         activeOpacity={0.85}
       >
         <LinearGradient
-          colors={[Colors.primaryDark, Colors.primary]}
+          colors={[colors.primaryDark, colors.primary]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.saveBtnGrad}
@@ -219,11 +223,11 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 12,
@@ -233,18 +237,18 @@ const styles = StyleSheet.create({
   speciesRow: { flexDirection: 'row', gap: 10, marginBottom: 8 },
   speciesBtn: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 14,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     position: 'relative',
   },
-  speciesBtnActive: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  speciesBtnActive: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
   speciesIcon: { marginBottom: 6 },
-  speciesLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
-  speciesLabelActive: { color: Colors.primary },
+  speciesLabel: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
+  speciesLabelActive: { color: colors.primary },
   speciesCheck: {
     position: 'absolute',
     top: 8,
@@ -252,37 +256,37 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   fieldWrap: { marginBottom: 12 },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 7 },
+  fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 7 },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     paddingHorizontal: 14,
     minHeight: 52,
   },
-  inputWrapFocused: { borderColor: Colors.primary },
-  inputError: { borderColor: Colors.errorRed },
+  inputWrapFocused: { borderColor: colors.primary },
+  inputError: { borderColor: colors.errorRed },
   inputIcon: { marginRight: 10 },
-  inputInner: { flex: 1, fontSize: 15, color: Colors.text, paddingVertical: 12 },
+  inputInner: { flex: 1, fontSize: 15, color: colors.text, paddingVertical: 12 },
   textareaWrap: { alignItems: 'flex-start', paddingTop: 12, paddingBottom: 12 },
   textareaInner: { minHeight: 72, paddingVertical: 0 },
   rowFields: { flexDirection: 'row', gap: 12 },
-  errorText: { fontSize: 12, color: Colors.errorRed, marginTop: 6, marginLeft: 2 },
+  errorText: { fontSize: 12, color: colors.errorRed, marginTop: 6, marginLeft: 2 },
 
   saveBtn: {
     marginTop: 24,
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: Colors.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -296,5 +300,5 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 16,
   },
-  saveBtnText: { fontSize: 16, fontWeight: '800', color: Colors.white, letterSpacing: 0.3 },
+  saveBtnText: { fontSize: 16, fontWeight: '800', color: colors.white, letterSpacing: 0.3 },
 });

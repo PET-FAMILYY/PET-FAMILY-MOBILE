@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { ThemeColors } from '../constants/colors';
+import { useTheme } from '../providers/ThemeProvider';
 import type { LembreteResponse } from '../types/api';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; accent: string }> = {
-  PENDENTE: { label: 'Pendente', color: '#D97706', bg: '#FFFBEB', accent: '#F59E0B' },
-  CONCLUIDO: { label: 'Concluído', color: '#059669', bg: '#F0FDF4', accent: '#10B981' },
-  CANCELADO: { label: 'Cancelado', color: '#6B7280', bg: '#F3F4F6', accent: '#9CA3AF' },
-};
+const getStatusConfig = (colors: ThemeColors): Record<string, { label: string; color: string; bg: string; accent: string }> => ({
+  PENDENTE: { label: 'Pendente', color: colors.orange, bg: colors.yellowLight, accent: colors.yellow },
+  CONCLUIDO: { label: 'Concluído', color: colors.greenDark, bg: colors.greenLight, accent: colors.green },
+  CANCELADO: { label: 'Cancelado', color: colors.textSecondary, bg: colors.border, accent: colors.textLight },
+});
 
 interface LembreteCardProps {
   lembrete: LembreteResponse;
@@ -28,7 +30,9 @@ export const LembreteCard: React.FC<LembreteCardProps> = ({
   onDelete,
   busy,
 }) => {
-  const cfg = STATUS_CONFIG[lembrete.status];
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const cfg = getStatusConfig(colors)[lembrete.status];
   const isDone = lembrete.status !== 'PENDENTE';
 
   return (
@@ -58,7 +62,7 @@ export const LembreteCard: React.FC<LembreteCardProps> = ({
 
         <View style={styles.footer}>
           <View style={styles.dateRow}>
-            <Ionicons name="calendar-outline" size={11} color="#9CA3AF" />
+            <Ionicons name="calendar-outline" size={11} color={colors.textLight} />
             <Text style={styles.date}>{lembrete.dataLembrete.split('-').reverse().join('/')}</Text>
             <Text style={styles.tipo}>· {lembrete.tipo}</Text>
           </View>
@@ -76,12 +80,12 @@ export const LembreteCard: React.FC<LembreteCardProps> = ({
             )}
             {onEdit && (
               <TouchableOpacity style={styles.iconBtn} onPress={onEdit} disabled={busy} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                <Ionicons name="create-outline" size={18} color="#6F3CC3" />
+                <Ionicons name="create-outline" size={18} color={colors.primary} />
               </TouchableOpacity>
             )}
             {onDelete && (
               <TouchableOpacity style={styles.iconBtn} onPress={onDelete} disabled={busy} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                <Ionicons name="trash-outline" size={18} color={colors.errorRed} />
               </TouchableOpacity>
             )}
           </View>
@@ -91,9 +95,9 @@ export const LembreteCard: React.FC<LembreteCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 14,
     marginBottom: 10,
     flexDirection: 'row',
@@ -109,26 +113,26 @@ const styles = StyleSheet.create({
   body: { flex: 1, padding: 14, paddingLeft: 16 },
 
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5, gap: 8 },
-  title: { fontSize: 14, fontWeight: '600', color: '#111827', flex: 1, letterSpacing: -0.1 },
-  titleDone: { color: '#6B7280' },
+  title: { fontSize: 14, fontWeight: '600', color: colors.text, flex: 1, letterSpacing: -0.1 },
+  titleDone: { color: colors.textSecondary },
   badgeGroup: { flexDirection: 'row', gap: 6, flexShrink: 0 },
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
   badgeText: { fontSize: 10, fontWeight: '600', letterSpacing: 0.1 },
-  lateBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
-  lateBadgeText: { fontSize: 10, fontWeight: '700', color: '#DC2626' },
+  lateBadge: { backgroundColor: colors.errorLight, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
+  lateBadgeText: { fontSize: 10, fontWeight: '700', color: colors.errorRed },
 
-  petName: { fontSize: 11, color: '#6F3CC3', fontWeight: '600', marginBottom: 4 },
-  description: { fontSize: 12, color: '#6B7280', lineHeight: 17, marginBottom: 10 },
+  petName: { fontSize: 11, color: colors.primary, fontWeight: '600', marginBottom: 4 },
+  description: { fontSize: 12, color: colors.textSecondary, lineHeight: 17, marginBottom: 10 },
 
   footer: { gap: 8 },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  date: { fontSize: 11, color: '#9CA3AF', fontWeight: '500' },
-  tipo: { fontSize: 11, color: '#9CA3AF' },
+  date: { fontSize: 11, color: colors.textLight, fontWeight: '500' },
+  tipo: { fontSize: 11, color: colors.textLight },
 
   actions: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  actionBtn: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 6, backgroundColor: '#F3EDFF' },
-  actionBtnGhost: { backgroundColor: '#FEE2E2' },
-  actionBtnText: { fontSize: 11, color: '#6F3CC3', fontWeight: '600', letterSpacing: 0.1 },
-  actionBtnTextGhost: { color: '#DC2626' },
+  actionBtn: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 6, backgroundColor: colors.primaryLight },
+  actionBtnGhost: { backgroundColor: colors.errorLight },
+  actionBtnText: { fontSize: 11, color: colors.primary, fontWeight: '600', letterSpacing: 0.1 },
+  actionBtnTextGhost: { color: colors.errorRed },
   iconBtn: { padding: 4 },
 });

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../constants/colors';
+import type { ThemeColors } from '../constants/colors';
+import { useTheme } from '../providers/ThemeProvider';
 import { usePetsQuery } from '../hooks/usePets';
 import { brDateToIso, isFutureDateTime, isoDateToBR } from '../utils/validators';
 import { LoadingState, ErrorState } from './StateViews';
@@ -34,6 +35,9 @@ interface LembreteFormProps {
 }
 
 export const LembreteForm: React.FC<LembreteFormProps> = ({ initialValues, onSubmit, submitting, submitLabel }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [form, setForm] = useState<LembreteFormValues>(initialValues ?? emptyLembreteForm);
   const [errors, setErrors] = useState<Partial<Record<keyof LembreteFormValues, string>>>({});
   const { data: petsPage, isLoading: petsLoading, isError: petsError, refetch: refetchPets } = usePetsQuery({ size: 100 });
@@ -119,7 +123,7 @@ export const LembreteForm: React.FC<LembreteFormProps> = ({ initialValues, onSub
           value={form.descricao}
           onChangeText={v => update('descricao', v)}
           placeholder="Detalhes sobre o cuidado..."
-          placeholderTextColor={Colors.textLight}
+          placeholderTextColor={colors.textLight}
           multiline
           numberOfLines={3}
           textAlignVertical="top"
@@ -127,7 +131,7 @@ export const LembreteForm: React.FC<LembreteFormProps> = ({ initialValues, onSub
       </View>
 
       <TouchableOpacity style={[styles.saveBtn, submitting && styles.saveBtnLoading]} onPress={handleSubmit} disabled={submitting} activeOpacity={0.85}>
-        <LinearGradient colors={[Colors.primaryDark, Colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.saveBtnGrad}>
+        <LinearGradient colors={[colors.primaryDark, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.saveBtnGrad}>
           <Text style={styles.saveBtnText}>{submitting ? 'Salvando...' : submitLabel}</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -143,70 +147,75 @@ const Field: React.FC<{
   placeholder: string;
   error?: string;
   keyboardType?: any;
-}> = ({ label, icon, value, onChangeText, placeholder, error, keyboardType }) => (
+}> = ({ label, icon, value, onChangeText, placeholder, error, keyboardType }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  return (
   <View style={styles.fieldWrap}>
     <Text style={styles.fieldLabel}>{label}</Text>
     <View style={[styles.inputWrap, error ? styles.inputError : null]}>
-      <Ionicons name={icon as any} size={18} color={Colors.textLight} style={styles.inputIcon} />
+      <Ionicons name={icon as any} size={18} color={colors.textLight} style={styles.inputIcon} />
       <TextInput
         style={styles.inputInner}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={Colors.textLight}
+        placeholderTextColor={colors.textLight}
         keyboardType={keyboardType}
       />
     </View>
     {error && <Text style={styles.errorText}>{error}</Text>}
   </View>
-);
+  );
+};
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 12,
   },
   petScroll: { marginBottom: 4 },
   petChip: {
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginRight: 8,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
-  petChipActive: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
-  petChipText: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
-  petChipTextActive: { color: Colors.primary },
-  emptyPets: { fontSize: 13, color: Colors.textLight, marginBottom: 8 },
+  petChipActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+  petChipText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
+  petChipTextActive: { color: colors.primary },
+  emptyPets: { fontSize: 13, color: colors.textLight, marginBottom: 8 },
 
   fieldWrap: { marginBottom: 12, marginTop: 12 },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 7, marginTop: 12 },
+  fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 7, marginTop: 12 },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     paddingHorizontal: 14,
     minHeight: 52,
   },
-  inputError: { borderColor: Colors.errorRed },
+  inputError: { borderColor: colors.errorRed },
   inputIcon: { marginRight: 10 },
-  inputInner: { flex: 1, fontSize: 15, color: Colors.text, paddingVertical: 12 },
+  inputInner: { flex: 1, fontSize: 15, color: colors.text, paddingVertical: 12 },
   textareaWrap: { alignItems: 'flex-start', paddingTop: 12, paddingBottom: 12 },
   textareaInner: { minHeight: 72, paddingVertical: 0 },
   rowFields: { flexDirection: 'row', gap: 12 },
-  errorText: { fontSize: 12, color: Colors.errorRed, marginTop: 6, marginLeft: 2 },
+  errorText: { fontSize: 12, color: colors.errorRed, marginTop: 6, marginLeft: 2 },
 
   saveBtn: { marginTop: 24, borderRadius: 16, overflow: 'hidden' },
   saveBtnLoading: { opacity: 0.7 },
   saveBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
-  saveBtnText: { fontSize: 16, fontWeight: '800', color: Colors.white, letterSpacing: 0.3 },
+  saveBtnText: { fontSize: 16, fontWeight: '800', color: colors.white, letterSpacing: 0.3 },
 });

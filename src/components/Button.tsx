@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle } from 'react-native';
-import { Colors } from '../constants/colors';
+import type { ThemeColors } from '../constants/colors';
+import { useTheme } from '../providers/ThemeProvider';
 
 interface ButtonProps {
   title: string;
@@ -21,6 +22,9 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   fullWidth = true,
 }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <TouchableOpacity
       style={[
@@ -35,7 +39,7 @@ export const Button: React.FC<ButtonProps> = ({
       activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? Colors.white : Colors.primary} />
+        <ActivityIndicator color={variant === 'primary' ? colors.white : colors.primary} />
       ) : (
         <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
       )}
@@ -43,7 +47,7 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   base: {
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -56,8 +60,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primary: {
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -66,13 +70,13 @@ const styles = StyleSheet.create({
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
   },
   ghost: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: colors.primaryLight,
   },
   danger: {
-    backgroundColor: Colors.errorRed,
+    backgroundColor: colors.errorRed,
   },
   disabled: {
     opacity: 0.5,
@@ -82,8 +86,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.3,
   },
-  primaryText: { color: Colors.white },
-  outlineText: { color: Colors.primary },
-  ghostText: { color: Colors.primary },
-  dangerText: { color: Colors.white },
+  primaryText: { color: colors.white },
+  outlineText: { color: colors.primary },
+  ghostText: { color: colors.primary },
+  dangerText: { color: colors.white },
 });
