@@ -43,6 +43,12 @@
     "experiments": {
       "typedRoutes": false
     },
-    "scheme": "petfamily"
+    "scheme": "petfamily",
+    "extra": {
+      "eas": {
+        "projectId": "96ca6563-1c66-4d99-b2d5-6117571e8bb4"
+      }
+    },
+    "owner": "pedrovaz100"
   }
 }
