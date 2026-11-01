@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,16 +6,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { useDashboardQuery } from '../../src/hooks/useDashboard';
 import { LoadingState, ErrorState, EmptyState } from '../../src/components/StateViews';
-import { Colors } from '../../src/constants/colors';
+import type { ThemeColors } from '../../src/constants/colors';
+import { useTheme } from '../../src/providers/ThemeProvider';
 
 export default function DashboardScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { isVeterinario } = useAuth();
   const { data, isLoading, isError, refetch, isRefetching } = useDashboardQuery(isVeterinario);
 
   if (!isVeterinario) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
         <EmptyState
           icon="lock-closed-outline"
           title="Área exclusiva do Veterinário"
@@ -27,15 +30,15 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[Colors.primary]} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
       >
         <LinearGradient
-          colors={[Colors.gradientEnd, Colors.gradientStart, Colors.primaryMid]}
+          colors={[colors.gradientEnd, colors.gradientStart, colors.primaryMid]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}
@@ -82,13 +85,13 @@ export default function DashboardScreen() {
               <View style={styles.statCard}>
                 <View style={styles.statRow}>
                   <View style={styles.statIconBox}>
-                    <Ionicons name="notifications" size={24} color={Colors.orange} />
+                    <Ionicons name="notifications" size={24} color={colors.orange} />
                   </View>
                   <View style={styles.statInfo}>
                     <Text style={styles.statName}>Lembretes pendentes</Text>
                     <Text style={styles.statSub}>Vacinas, retornos e check-ups em aberto</Text>
                   </View>
-                  <Text style={[styles.statValue, { color: Colors.orange }]}>{data.totalLembretesPendentes}</Text>
+                  <Text style={[styles.statValue, { color: colors.orange }]}>{data.totalLembretesPendentes}</Text>
                 </View>
               </View>
 
@@ -96,25 +99,25 @@ export default function DashboardScreen() {
               <View style={styles.statCard}>
                 <View style={styles.statRow}>
                   <View style={styles.statIconBox}>
-                    <Ionicons name="medical" size={24} color={Colors.blue} />
+                    <Ionicons name="medical" size={24} color={colors.blue} />
                   </View>
                   <View style={styles.statInfo}>
                     <Text style={styles.statName}>Total de consultas</Text>
                     <Text style={styles.statSub}>Agendadas, realizadas e canceladas</Text>
                   </View>
-                  <Text style={[styles.statValue, { color: Colors.blue }]}>{data.totalConsultas}</Text>
+                  <Text style={[styles.statValue, { color: colors.blue }]}>{data.totalConsultas}</Text>
                 </View>
               </View>
 
               <Text style={styles.sectionTitle}>Adesão preventiva</Text>
               <LinearGradient
-                colors={[Colors.greenDark, Colors.green]}
+                colors={[colors.greenDark, colors.green]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.adhesionCard}
               >
                 <View style={styles.adhesionRow}>
-                  <View style={styles.adhesionAvatar}><Ionicons name="trending-up" size={22} color={Colors.white} /></View>
+                  <View style={styles.adhesionAvatar}><Ionicons name="trending-up" size={22} color={colors.white} /></View>
                   <View style={styles.adhesionInfo}>
                     <Text style={styles.adhesionTitle}>{data.taxaAdesaoPreventiva}% de consultas realizadas</Text>
                     <Text style={styles.adhesionSub}>Proporção de consultas efetivamente concluídas sobre o total agendado.</Text>
@@ -126,13 +129,13 @@ export default function DashboardScreen() {
               <View style={styles.statCard}>
                 <View style={styles.statRow}>
                   <View style={styles.statIconBox}>
-                    <Ionicons name="chatbubbles" size={22} color={Colors.primary} />
+                    <Ionicons name="chatbubbles" size={22} color={colors.primary} />
                   </View>
                   <View style={styles.statInfo}>
                     <Text style={styles.statName}>Interações com tutores</Text>
                     <Text style={styles.statSub}>Perguntas respondidas pelo assistente</Text>
                   </View>
-                  <Text style={[styles.statValue, { color: Colors.primary }]}>{data.totalInteracoesIA}</Text>
+                  <Text style={[styles.statValue, { color: colors.primary }]}>{data.totalInteracoesIA}</Text>
                 </View>
               </View>
             </>
@@ -144,14 +147,14 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.gradientEnd },
-  scroll: { flex: 1, backgroundColor: Colors.background },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.gradientEnd },
+  scroll: { flex: 1, backgroundColor: colors.background },
   content: { paddingBottom: 0 },
 
   header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 36 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
-  headerTitle: { fontSize: 22, fontWeight: '900', color: Colors.white },
+  headerTitle: { fontSize: 22, fontWeight: '900', color: colors.white },
   headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 4 },
   clinicBadge: {
     flexDirection: 'row',
@@ -162,8 +165,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     gap: 5,
   },
-  activeDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: Colors.green },
-  clinicBadgeText: { fontSize: 12, color: Colors.white, fontWeight: '700' },
+  activeDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.green },
+  clinicBadgeText: { fontSize: 12, color: colors.white, fontWeight: '700' },
   miniKpiRow: {
     flexDirection: 'row',
     backgroundColor: 'rgba(255,255,255,0.15)',
@@ -171,16 +174,16 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   miniKpi: { flex: 1, alignItems: 'center' },
-  miniKpiVal: { fontSize: 18, fontWeight: '900', color: Colors.white },
+  miniKpiVal: { fontSize: 18, fontWeight: '900', color: colors.white },
   miniKpiLabel: { fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
   miniDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.25)', marginHorizontal: 8 },
 
-  sheet: { backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, padding: 16 },
+  sheet: { backgroundColor: colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, padding: 16 },
 
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: Colors.text, marginBottom: 12, marginTop: 8, letterSpacing: 0.1 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.text, marginBottom: 12, marginTop: 8, letterSpacing: 0.1 },
 
   statCard: {
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
@@ -195,14 +198,14 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 16,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
   statInfo: { flex: 1 },
-  statName: { fontSize: 14, fontWeight: '800', color: Colors.text },
-  statSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 3 },
+  statName: { fontSize: 14, fontWeight: '800', color: colors.text },
+  statSub: { fontSize: 12, color: colors.textSecondary, marginTop: 3 },
   statValue: { fontSize: 26, fontWeight: '900' },
 
   adhesionCard: { borderRadius: 20, padding: 16, marginBottom: 20, overflow: 'hidden' },
@@ -216,7 +219,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   adhesionInfo: { flex: 1 },
-  adhesionTitle: { fontSize: 15, fontWeight: '800', color: Colors.white },
+  adhesionTitle: { fontSize: 15, fontWeight: '800', color: colors.white },
   adhesionSub: { fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 6, lineHeight: 17 },
 
   bottomPad: { height: 28 },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
-import { Colors } from '../../src/constants/colors';
+import type { ThemeColors } from '../../src/constants/colors';
+import { useTheme } from '../../src/providers/ThemeProvider';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { usePetsQuery } from '../../src/hooks/usePets';
 import { queryKeys } from '../../src/hooks/queryKeys';
@@ -32,15 +33,17 @@ import { LoadingState, ErrorState, EmptyState } from '../../src/components/State
 import { ApiError } from '../../src/services/api';
 import { brDateToIso, isFutureDateTime, timeToApiFormat, isValidTime } from '../../src/utils/validators';
 
-const TIPOS: { label: string; emoji: string; color: string }[] = [
-  { label: 'Preventiva', emoji: '🛡️', color: Colors.primary },
-  { label: 'Vacinação', emoji: '💉', color: Colors.blue },
-  { label: 'Retorno', emoji: '🔄', color: Colors.teal },
-  { label: 'Emergência', emoji: '🚨', color: Colors.errorRed },
-  { label: 'Check-up', emoji: '🔬', color: Colors.green },
+const getTipos = (colors: ThemeColors): { label: string; emoji: string; color: string }[] => [
+  { label: 'Preventiva', emoji: '🛡️', color: colors.primary },
+  { label: 'Vacinação', emoji: '💉', color: colors.blue },
+  { label: 'Retorno', emoji: '🔄', color: colors.teal },
+  { label: 'Emergência', emoji: '🚨', color: colors.errorRed },
+  { label: 'Check-up', emoji: '🔬', color: colors.green },
 ];
 
 function TutorConsultasScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { data: petsPage } = usePetsQuery({ size: 50 });
   const pets = petsPage?.content ?? [];
   const consultasQuery = useConsultasQuery({ size: 20 });
@@ -56,6 +59,7 @@ function TutorConsultasScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const consultas = consultasQuery.data?.content ?? [];
+  const TIPOS = getTipos(colors);
   const selectedType = TIPOS.find(t => t.label === tipo)!;
   const selectedPet = pets.find(p => p.id === petId);
   const isFilled = !!petId && !!data && !!horario;
@@ -119,10 +123,10 @@ function TutorConsultasScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
 
       <LinearGradient
-        colors={[Colors.gradientEnd, Colors.gradientStart]}
+        colors={[colors.gradientEnd, colors.gradientStart]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.headerGrad}
@@ -137,7 +141,7 @@ function TutorConsultasScreen() {
               <Text style={styles.summaryPet}>{selectedPet?.nome}</Text>
               <Text style={styles.summaryDate}>{data} às {horario} · {selectedType.label}</Text>
             </View>
-            {confirmed && <Ionicons name="checkmark-circle" size={20} color={Colors.green} />}
+            {confirmed && <Ionicons name="checkmark-circle" size={20} color={colors.green} />}
           </View>
         )}
       </LinearGradient>
@@ -148,7 +152,7 @@ function TutorConsultasScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
         >
           <Text style={styles.sectionLabel}>Tipo de consulta</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
@@ -188,16 +192,16 @@ function TutorConsultasScreen() {
             <View style={styles.fieldWrap}>
               <Text style={styles.fieldLabel}>Data *</Text>
               <View style={[styles.inputWrap, errors.data ? styles.inputError : null]}>
-                <Ionicons name="calendar-outline" size={18} color={Colors.textLight} style={styles.icon} />
-                <TextInput style={styles.inputInner} value={data} onChangeText={update(setData)} placeholder="DD/MM/AAAA" placeholderTextColor={Colors.textLight} keyboardType="numeric" />
+                <Ionicons name="calendar-outline" size={18} color={colors.textLight} style={styles.icon} />
+                <TextInput style={styles.inputInner} value={data} onChangeText={update(setData)} placeholder="DD/MM/AAAA" placeholderTextColor={colors.textLight} keyboardType="numeric" />
               </View>
               {errors.data && <Text style={styles.errorText}>{errors.data}</Text>}
             </View>
             <View style={styles.fieldWrap}>
               <Text style={styles.fieldLabel}>Horário *</Text>
               <View style={[styles.inputWrap, errors.horario ? styles.inputError : null]}>
-                <Ionicons name="time-outline" size={18} color={Colors.textLight} style={styles.icon} />
-                <TextInput style={styles.inputInner} value={horario} onChangeText={update(setHorario)} placeholder="HH:MM" placeholderTextColor={Colors.textLight} keyboardType="numeric" />
+                <Ionicons name="time-outline" size={18} color={colors.textLight} style={styles.icon} />
+                <TextInput style={styles.inputInner} value={horario} onChangeText={update(setHorario)} placeholder="HH:MM" placeholderTextColor={colors.textLight} keyboardType="numeric" />
               </View>
               {errors.horario && <Text style={styles.errorText}>{errors.horario}</Text>}
             </View>
@@ -205,12 +209,12 @@ function TutorConsultasScreen() {
 
           <Text style={styles.fieldLabel}>Observações</Text>
           <View style={[styles.inputWrap, styles.textareaWrap]}>
-            <TextInput style={[styles.inputInner, styles.textareaInner]} value={observacoes} onChangeText={update(setObservacoes)} placeholder="Sintomas, dúvidas..." placeholderTextColor={Colors.textLight} multiline numberOfLines={3} textAlignVertical="top" />
+            <TextInput style={[styles.inputInner, styles.textareaInner]} value={observacoes} onChangeText={update(setObservacoes)} placeholder="Sintomas, dúvidas..." placeholderTextColor={colors.textLight} multiline numberOfLines={3} textAlignVertical="top" />
           </View>
 
           <TouchableOpacity style={[styles.saveBtn, agendarMutation.isPending && styles.saveBtnOff]} onPress={handleAgendar} disabled={agendarMutation.isPending} activeOpacity={0.85}>
-            <LinearGradient colors={[Colors.primaryDark, Colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.saveBtnGrad}>
-              <Ionicons name={confirmed ? 'calendar' : 'calendar-outline'} size={20} color={Colors.white} />
+            <LinearGradient colors={[colors.primaryDark, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.saveBtnGrad}>
+              <Ionicons name={confirmed ? 'calendar' : 'calendar-outline'} size={20} color={colors.white} />
               <Text style={styles.saveBtnText}>{agendarMutation.isPending ? 'Agendando...' : 'Confirmar Agendamento'}</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -218,7 +222,7 @@ function TutorConsultasScreen() {
           {confirmed && (
             <View style={styles.confirmCard}>
               <View style={styles.confirmIconBox}>
-                <Ionicons name="checkmark-circle" size={28} color={Colors.green} />
+                <Ionicons name="checkmark-circle" size={28} color={colors.green} />
               </View>
               <View style={styles.confirmInfo}>
                 <Text style={styles.confirmTitle}>Consulta confirmada!</Text>
@@ -248,6 +252,8 @@ function TutorConsultasScreen() {
 }
 
 function VetConsultasScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const futurasQuery = useConsultasFuturasQuery();
   const cancelarMutation = useCancelarConsultaMutation();
   const realizarMutation = useRealizarConsultaMutation();
@@ -278,8 +284,8 @@ function VetConsultasScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
-      <LinearGradient colors={[Colors.gradientEnd, Colors.gradientStart]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.headerGrad}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
+      <LinearGradient colors={[colors.gradientEnd, colors.gradientStart]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.headerGrad}>
         <Text style={styles.headerTitle}>Agenda Clínica</Text>
         <Text style={styles.headerSub}>Consultas futuras de todos os tutores</Text>
       </LinearGradient>
@@ -288,7 +294,7 @@ function VetConsultasScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={futurasQuery.isRefetching} onRefresh={futurasQuery.refetch} colors={[Colors.primary]} />}
+        refreshControl={<RefreshControl refreshing={futurasQuery.isRefetching} onRefresh={futurasQuery.refetch} colors={[colors.primary]} />}
       >
         {futurasQuery.isLoading ? (
           <LoadingState label="Carregando agenda..." />
@@ -319,13 +325,13 @@ export default function AppointmentScreen() {
   return isVeterinario ? <VetConsultasScreen /> : <TutorConsultasScreen />;
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.gradientEnd },
-  scroll: { flex: 1, backgroundColor: Colors.background },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.gradientEnd },
+  scroll: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16 },
 
   headerGrad: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 },
-  headerTitle: { fontSize: 24, fontWeight: '900', color: Colors.white },
+  headerTitle: { fontSize: 24, fontWeight: '900', color: colors.white },
   headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 4 },
 
   summaryPill: {
@@ -340,13 +346,13 @@ const styles = StyleSheet.create({
   },
   summaryEmoji: { fontSize: 22 },
   summaryTexts: { flex: 1 },
-  summaryPet: { fontSize: 14, fontWeight: '800', color: Colors.white },
+  summaryPet: { fontSize: 14, fontWeight: '800', color: colors.white },
   summaryDate: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 1 },
 
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 12,
@@ -358,61 +364,61 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 24,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginHorizontal: 4,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
-  typeChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  typeChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   typeChipEmoji: { fontSize: 16 },
-  typeChipLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
-  typeChipLabelActive: { color: Colors.white },
+  typeChipLabel: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
+  typeChipLabelActive: { color: colors.white },
 
-  hint: { fontSize: 13, color: Colors.textLight, marginBottom: 8 },
+  hint: { fontSize: 13, color: colors.textLight, marginBottom: 8 },
 
   fieldWrap: { marginBottom: 12, flex: 1 },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 7, marginTop: 12 },
+  fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 7, marginTop: 12 },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     paddingHorizontal: 14,
     minHeight: 52,
   },
-  inputError: { borderColor: Colors.errorRed },
+  inputError: { borderColor: colors.errorRed },
   icon: { marginRight: 10 },
-  inputInner: { flex: 1, fontSize: 15, color: Colors.text, paddingVertical: 12 },
+  inputInner: { flex: 1, fontSize: 15, color: colors.text, paddingVertical: 12 },
   textareaWrap: { alignItems: 'flex-start', paddingTop: 12, paddingBottom: 12 },
   textareaInner: { minHeight: 72, paddingVertical: 0 },
   rowFields: { flexDirection: 'row', gap: 12 },
-  errorText: { fontSize: 12, color: Colors.errorRed, marginTop: 4, marginLeft: 2 },
+  errorText: { fontSize: 12, color: colors.errorRed, marginTop: 4, marginLeft: 2 },
 
   saveBtn: { marginTop: 20, borderRadius: 16, overflow: 'hidden' },
   saveBtnOff: { opacity: 0.7 },
   saveBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 16 },
-  saveBtnText: { fontSize: 16, fontWeight: '800', color: Colors.white, letterSpacing: 0.3 },
+  saveBtnText: { fontSize: 16, fontWeight: '800', color: colors.white, letterSpacing: 0.3 },
 
   confirmCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: Colors.greenLight,
+    backgroundColor: colors.greenLight,
     borderRadius: 16,
     padding: 14,
     marginTop: 14,
     gap: 12,
     borderWidth: 1,
-    borderColor: Colors.green + '44',
+    borderColor: colors.green + '44',
   },
   confirmIconBox: { marginTop: 2 },
   confirmInfo: { flex: 1 },
-  confirmTitle: { fontSize: 14, fontWeight: '700', color: Colors.greenDark },
-  confirmSub: { fontSize: 13, color: Colors.greenDark, marginTop: 3, lineHeight: 18, opacity: 0.85 },
+  confirmTitle: { fontSize: 14, fontWeight: '700', color: colors.greenDark },
+  confirmSub: { fontSize: 13, color: colors.greenDark, marginTop: 3, lineHeight: 18, opacity: 0.85 },
 
   bottomPad: { height: 28 },
 });

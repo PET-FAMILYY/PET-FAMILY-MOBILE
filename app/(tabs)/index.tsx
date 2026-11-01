@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,9 @@ import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { ThemeColors } from '../../src/constants/colors';
 import { useAuth } from '../../src/providers/AuthProvider';
+import { useTheme } from '../../src/providers/ThemeProvider';
 import { usePetsQuery } from '../../src/hooks/usePets';
 import { useMeusLembretesQuery } from '../../src/hooks/useLembretes';
 import { useDashboardQuery } from '../../src/hooks/useDashboard';
@@ -23,15 +25,9 @@ import { isoDateToBR } from '../../src/utils/validators';
 const { width } = Dimensions.get('window');
 const CARD_W = (width - 44) / 2;
 
-const PURPLE = '#7C3AED';
-const PURPLE_DARK = '#5B21B6';
-const PURPLE_LIGHT = '#F3E8FF';
-const BG = '#F8F5FF';
-const TEXT = '#1F2937';
-const MUTED = '#6B7280';
-const BORDER = '#E9D5FF';
-
 export default function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { user, isVeterinario } = useAuth();
 
@@ -67,14 +63,14 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={PURPLE} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={petsQuery.isRefetching} onRefresh={onRefresh} colors={[PURPLE]} />}
+        refreshControl={<RefreshControl refreshing={petsQuery.isRefetching} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
-        <LinearGradient colors={[PURPLE_DARK, PURPLE]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+        <LinearGradient colors={[colors.gradientEnd, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.headerTop}>
             <View>
               <Text style={styles.greeting}>Olá, {user?.nome?.split(' ')[0] ?? 'Tutor'}</Text>
@@ -104,7 +100,7 @@ export default function HomeScreen() {
               </View>
 
               <View style={styles.arrowCircle}>
-                <Ionicons name="arrow-forward" size={18} color={PURPLE} />
+                <Ionicons name="arrow-forward" size={18} color={colors.primary} />
               </View>
             </TouchableOpacity>
           )}
@@ -139,7 +135,7 @@ export default function HomeScreen() {
                 activeOpacity={0.8}
               >
                 <View style={styles.quickIcon}>
-                  <Ionicons name={cat.icon as any} size={23} color={PURPLE} />
+                  <Ionicons name={cat.icon as any} size={23} color={colors.primary} />
                 </View>
                 <Text style={styles.quickLabel}>{cat.label}</Text>
               </TouchableOpacity>
@@ -191,7 +187,7 @@ export default function HomeScreen() {
           >
             <View style={styles.aiIcon}>
               {isVeterinario ? (
-                <Ionicons name="stats-chart" size={20} color={PURPLE} />
+                <Ionicons name="stats-chart" size={20} color={colors.primary} />
               ) : (
                 <Text style={styles.aiText}>IA</Text>
               )}
@@ -202,7 +198,7 @@ export default function HomeScreen() {
                 {isVeterinario ? 'Indicadores reais da clínica' : 'Tire dúvidas sobre saúde e prevenção'}
               </Text>
             </View>
-            <Ionicons name={isVeterinario ? 'chevron-forward' : 'chatbubble-ellipses'} size={24} color={PURPLE} />
+            <Ionicons name={isVeterinario ? 'chevron-forward' : 'chatbubble-ellipses'} size={24} color={colors.primary} />
           </TouchableOpacity>
 
           {!isVeterinario && (
@@ -211,14 +207,14 @@ export default function HomeScreen() {
 
               {pendentes.length === 0 ? (
                 <View style={styles.emptyAlert}>
-                  <MaterialCommunityIcons name="shield-check-outline" size={22} color={PURPLE} />
+                  <MaterialCommunityIcons name="shield-check-outline" size={22} color={colors.primary} />
                   <Text style={styles.emptyAlertText}>Nenhum cuidado pendente no momento.</Text>
                 </View>
               ) : (
                 pendentes.map(l => (
                   <View key={l.id} style={styles.alertCard}>
                     <View style={styles.alertIcon}>
-                      <MaterialCommunityIcons name="calendar-alert" size={22} color={PURPLE} />
+                      <MaterialCommunityIcons name="calendar-alert" size={22} color={colors.primary} />
                     </View>
                     <View style={styles.alertInfo}>
                       <Text style={styles.alertTitle}>{l.titulo} — {l.petNome}</Text>
@@ -242,9 +238,9 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: PURPLE },
-  scroll: { flex: 1, backgroundColor: BG },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.primary },
+  scroll: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 28, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   greeting: { color: '#FFFFFF', fontSize: 22, fontWeight: '800' },
@@ -255,16 +251,16 @@ const styles = StyleSheet.create({
   },
   logo: { width: 48, height: 48 },
   mainCard: {
-    marginTop: 24, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16,
+    marginTop: 24, backgroundColor: colors.surface, borderRadius: 22, padding: 16,
     flexDirection: 'row', alignItems: 'center',
     shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.14, shadowRadius: 14, elevation: 6,
   },
   petAvatar: { width: 72, height: 72, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
   petAvatarImg: { width: 72, height: 72 },
   mainCardText: { flex: 1 },
-  mainCardTitle: { fontSize: 17, fontWeight: '800', color: TEXT },
-  mainCardSub: { fontSize: 13, color: MUTED, marginTop: 3 },
-  arrowCircle: { width: 38, height: 38, borderRadius: 19, backgroundColor: PURPLE_LIGHT, alignItems: 'center', justifyContent: 'center' },
+  mainCardTitle: { fontSize: 17, fontWeight: '800', color: colors.text },
+  mainCardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 3 },
+  arrowCircle: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
 
   vetStatsRow: {
     flexDirection: 'row', marginTop: 22, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, padding: 14,
@@ -274,14 +270,14 @@ const styles = StyleSheet.create({
   vetStatLabel: { fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 3, textAlign: 'center' },
 
   content: { paddingHorizontal: 16, paddingTop: 22 },
-  sectionTitle: { fontSize: 17, fontWeight: '800', color: TEXT, marginBottom: 14 },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: colors.text, marginBottom: 14 },
   quickGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 26, flexWrap: 'wrap' },
   quickItem: { alignItems: 'center', width: (width - 32) / 4 - 4, marginBottom: 12 },
   quickIcon: {
-    width: 50, height: 50, borderRadius: 18, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: BORDER,
+    width: 50, height: 50, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center', marginBottom: 7,
   },
-  quickLabel: { fontSize: 10, fontWeight: '600', color: MUTED, textAlign: 'center' },
+  quickLabel: { fontSize: 10, fontWeight: '600', color: colors.textSecondary, textAlign: 'center' },
 
   cardRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
   infoCard: { width: CARD_W, borderRadius: 22, overflow: 'hidden' },
@@ -296,34 +292,34 @@ const styles = StyleSheet.create({
   },
 
   aiCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 22, padding: 16, flexDirection: 'row', alignItems: 'center',
-    borderWidth: 1, borderColor: BORDER, marginBottom: 26,
-    shadowColor: PURPLE, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.12, shadowRadius: 12, elevation: 4,
+    backgroundColor: colors.surface, borderRadius: 22, padding: 16, flexDirection: 'row', alignItems: 'center',
+    borderWidth: 1, borderColor: colors.border, marginBottom: 26,
+    shadowColor: colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.12, shadowRadius: 12, elevation: 4,
   },
-  aiIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: PURPLE_LIGHT, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  aiText: { color: PURPLE, fontSize: 15, fontWeight: '900' },
-  aiTitle: { fontSize: 15, fontWeight: '800', color: TEXT },
-  aiSub: { fontSize: 12, color: MUTED, marginTop: 3 },
+  aiIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  aiText: { color: colors.primary, fontSize: 15, fontWeight: '900' },
+  aiTitle: { fontSize: 15, fontWeight: '800', color: colors.text },
+  aiSub: { fontSize: 12, color: colors.textSecondary, marginTop: 3 },
 
   emptyAlert: {
-    flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFFFF', borderRadius: 18,
-    padding: 16, borderWidth: 1, borderColor: BORDER,
+    flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 18,
+    padding: 16, borderWidth: 1, borderColor: colors.border,
   },
-  emptyAlertText: { fontSize: 13, color: MUTED, flex: 1 },
+  emptyAlertText: { fontSize: 13, color: colors.textSecondary, flex: 1 },
 
   alertCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, flexDirection: 'row', alignItems: 'center',
-    marginBottom: 10, borderWidth: 1, borderColor: BORDER,
+    backgroundColor: colors.surface, borderRadius: 18, padding: 14, flexDirection: 'row', alignItems: 'center',
+    marginBottom: 10, borderWidth: 1, borderColor: colors.border,
   },
   alertIcon: {
-    width: 46, height: 46, borderRadius: 16, backgroundColor: PURPLE_LIGHT, alignItems: 'center', justifyContent: 'center', marginRight: 12,
+    width: 46, height: 46, borderRadius: 16, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginRight: 12,
   },
   alertInfo: { flex: 1 },
-  alertTitle: { fontSize: 14, fontWeight: '800', color: TEXT },
-  alertDate: { fontSize: 12, color: MUTED, marginTop: 3 },
-  alertBadge: { backgroundColor: PURPLE_LIGHT, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
-  alertBadgeLate: { backgroundColor: '#FEE2E2' },
-  alertBadgeText: { fontSize: 11, fontWeight: '800', color: PURPLE },
-  alertBadgeTextLate: { color: '#DC2626' },
+  alertTitle: { fontSize: 14, fontWeight: '800', color: colors.text },
+  alertDate: { fontSize: 12, color: colors.textSecondary, marginTop: 3 },
+  alertBadge: { backgroundColor: colors.primaryLight, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
+  alertBadgeLate: { backgroundColor: colors.errorLight },
+  alertBadgeText: { fontSize: 11, fontWeight: '800', color: colors.primary },
+  alertBadgeTextLate: { color: colors.errorRed },
   bottomPad: { height: 30 },
 });

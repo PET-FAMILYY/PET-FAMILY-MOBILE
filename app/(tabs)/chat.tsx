@@ -21,7 +21,8 @@ import { EmptyState, LoadingState } from '../../src/components/StateViews';
 import { usePetsQuery } from '../../src/hooks/usePets';
 import { useInteracoesDoPetQuery, useCreateInteracaoIAMutation } from '../../src/hooks/useInteracoesIA';
 import { useAuth } from '../../src/providers/AuthProvider';
-import { Colors } from '../../src/constants/colors';
+import type { ThemeColors } from '../../src/constants/colors';
+import { useTheme } from '../../src/providers/ThemeProvider';
 import type { ChatMessage } from '../../src/types';
 
 const QUICK_REPLIES = [
@@ -33,6 +34,8 @@ const QUICK_REPLIES = [
 ];
 
 export default function ChatScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { isVeterinario } = useAuth();
   const { data: petsPage } = usePetsQuery({ size: 50 });
   const pets = petsPage?.content ?? [];
@@ -83,7 +86,7 @@ export default function ChatScreen() {
   if (isVeterinario) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
         <EmptyState icon="lock-closed-outline" title="Área exclusiva do Tutor" subtitle="O assistente é restrito ao perfil Tutor." />
       </SafeAreaView>
     );
@@ -91,9 +94,9 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.gradientEnd} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.gradientEnd} />
 
-      <LinearGradient colors={[Colors.gradientEnd, Colors.gradientStart]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+      <LinearGradient colors={[colors.gradientEnd, colors.gradientStart]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <View style={styles.headerCenter}>
           <View style={styles.aiAvatar}>
             <Image source={require('../../assets/logo.png')} style={styles.aiAvatarImg} resizeMode="contain" />
@@ -169,7 +172,7 @@ export default function ChatScreen() {
             value={input}
             onChangeText={setInput}
             placeholder="Digite sua dúvida..."
-            placeholderTextColor={Colors.textLight}
+            placeholderTextColor={colors.textLight}
             multiline
             returnKeyType="send"
             onSubmitEditing={() => send()}
@@ -181,10 +184,10 @@ export default function ChatScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={input.trim() ? [Colors.primaryDark, Colors.primary] : [Colors.border, Colors.border]}
+              colors={input.trim() ? [colors.primaryDark, colors.primary] : [colors.border, colors.border]}
               style={styles.sendBtnGrad}
             >
-              <Ionicons name="send" size={18} color={input.trim() ? Colors.white : Colors.textLight} />
+              <Ionicons name="send" size={18} color={input.trim() ? colors.white : colors.textLight} />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -193,8 +196,8 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.gradientEnd },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.gradientEnd },
   header: { paddingHorizontal: 16, paddingVertical: 12 },
   headerCenter: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   aiAvatar: {
@@ -204,32 +207,32 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)', overflow: 'hidden',
   },
   aiAvatarImg: { width: 38, height: 38 },
-  headerTitle: { fontSize: 15, fontWeight: '800', color: Colors.white },
+  headerTitle: { fontSize: 15, fontWeight: '800', color: colors.white },
   headerNote: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
   petPicker: { gap: 8, marginTop: 12 },
   petChip: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7 },
-  petChipActive: { backgroundColor: Colors.white },
-  petChipText: { fontSize: 12, fontWeight: '700', color: Colors.white },
-  petChipTextActive: { color: Colors.primary },
-  list: { flex: 1, backgroundColor: '#EDE8F5' },
+  petChipActive: { backgroundColor: colors.surface },
+  petChipText: { fontSize: 12, fontWeight: '700', color: colors.white },
+  petChipTextActive: { color: colors.primary },
+  list: { flex: 1, backgroundColor: colors.background },
   listContent: { paddingVertical: 16 },
-  quickWrap: { backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border, paddingVertical: 8 },
+  quickWrap: { backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: 8 },
   quickList: { paddingHorizontal: 12, gap: 8 },
   quickBtn: {
-    backgroundColor: Colors.primaryLight, borderRadius: 20,
+    backgroundColor: colors.primaryLight, borderRadius: 20,
     paddingHorizontal: 14, paddingVertical: 7,
-    borderWidth: 1, borderColor: Colors.primary + '33',
+    borderWidth: 1, borderColor: colors.primary + '33',
   },
-  quickText: { fontSize: 12, color: Colors.primary, fontWeight: '700' },
+  quickText: { fontSize: 12, color: colors.primary, fontWeight: '700' },
   inputRow: {
     flexDirection: 'row', alignItems: 'flex-end',
     paddingHorizontal: 12, paddingVertical: 10,
-    backgroundColor: Colors.white, gap: 10,
+    backgroundColor: colors.surface, gap: 10,
   },
   input: {
-    flex: 1, backgroundColor: Colors.background, borderRadius: 24,
+    flex: 1, backgroundColor: colors.background, borderRadius: 24,
     paddingHorizontal: 16, paddingVertical: 10, fontSize: 15,
-    color: Colors.text, maxHeight: 100, borderWidth: 1.5, borderColor: Colors.border,
+    color: colors.text, maxHeight: 100, borderWidth: 1.5, borderColor: colors.border,
   },
   sendBtn: { borderRadius: 24, overflow: 'hidden' },
   sendBtnOff: { opacity: 0.5 },
