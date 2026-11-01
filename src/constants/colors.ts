@@ -63,6 +63,3 @@ export const darkColors: ThemeColors = {
   gradientStart: '#5B2EAE',
   gradientEnd: '#3A1783',
 };
-
-// Alias temporario enquanto as telas migram para o tema dinamico (removido adiante).
-export const Colors = lightColors;
