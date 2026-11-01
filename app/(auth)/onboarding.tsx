@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,16 +10,19 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../../src/constants/colors';
+import type { ThemeColors } from '../../src/constants/colors';
+import { useTheme } from '../../src/providers/ThemeProvider';
 
 const { width, height } = Dimensions.get('window');
 
 export default function OnboardingScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.surface} />
 
       <View style={styles.container}>
         <View style={styles.imageWrap}>
@@ -51,10 +54,10 @@ export default function OnboardingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
   },
   container: {
     flex: 1,
@@ -80,14 +83,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '900',
-    color: Colors.text,
+    color: colors.text,
     textAlign: 'center',
     lineHeight: 40,
     marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 40,
@@ -95,11 +98,11 @@ const styles = StyleSheet.create({
   btn: {
     width: '100%',
     height: 56,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 17,
     fontWeight: '800',
-    color: Colors.white,
+    color: colors.white,
     letterSpacing: 0.3,
   },
 });
