@@ -2,12 +2,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as consultasApi from '../services/consultasApi';
 import type { ListConsultasParams } from '../services/consultasApi';
 import type { AgendarConsultaRequest, RealizarConsultaRequest } from '../types/api';
+import {
+  announceConsultaAgendada,
+  cancelConsultaReminders,
+  scheduleConsultaReminders,
+} from '../services/reminderNotifications';
 import { queryKeys } from './queryKeys';
 
-export const useConsultasQuery = (params: ListConsultasParams = {}) =>
+export const useConsultasQuery = (params: ListConsultasParams = {}, enabled = true) =>
   useQuery({
     queryKey: queryKeys.consultas.list(params),
     queryFn: () => consultasApi.listConsultas(params),
+    enabled,
   });
 
 export const useConsultasFuturasQuery = (enabled = true) =>
@@ -27,7 +33,11 @@ export const useAgendarConsultaMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: AgendarConsultaRequest) => consultasApi.agendarConsulta(data),
-    onSuccess: () => invalidateConsultas(queryClient),
+    onSuccess: (consulta) => {
+      invalidateConsultas(queryClient);
+      announceConsultaAgendada(consulta);
+      scheduleConsultaReminders(consulta);
+    },
   });
 };
 
@@ -35,7 +45,10 @@ export const useCancelarConsultaMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => consultasApi.cancelarConsulta(id),
-    onSuccess: () => invalidateConsultas(queryClient),
+    onSuccess: (_data, id) => {
+      invalidateConsultas(queryClient);
+      cancelConsultaReminders(id);
+    },
   });
 };
 

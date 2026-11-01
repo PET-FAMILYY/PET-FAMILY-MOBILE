@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useQueryClient } from '@tanstack/react-query';
 import { setAuthToken, setUnauthorizedHandler } from '../services/api';
 import * as authApi from '../services/authApi';
+import { cancelAllNotifications } from '../services/notificationsService';
 import type { LoginResponse, RegistroRequest, Role, UsuarioResponse } from '../types/api';
 
 const TOKEN_KEY = 'petfamily.token';
@@ -49,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       if (expired) setSessionExpired(true);
       await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await cancelAllNotifications();
       queryClient.clear();
     },
     [queryClient]
