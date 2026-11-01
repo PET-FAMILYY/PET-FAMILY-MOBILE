@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { QueryProvider } from '../src/providers/QueryProvider';
 import { AuthProvider, useAuth } from '../src/providers/AuthProvider';
 import { LoadingState } from '../src/components/StateViews';
-import { Colors } from '../src/constants/colors';
+import type { ThemeColors } from '../src/constants/colors';
+import { ThemeProvider, useTheme } from '../src/providers/ThemeProvider';
 
 function RootNavigator() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
@@ -39,15 +42,17 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <RootNavigator />
-      </AuthProvider>
-    </QueryProvider>
+    <ThemeProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      </QueryProvider>
+    </ThemeProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  loadingSafe: { flex: 1, backgroundColor: Colors.white },
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  loadingSafe: { flex: 1, backgroundColor: colors.surface },
   loadingBox: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

@@ -1,4 +1,4 @@
-export const Colors = {
+export const lightColors = {
   primary: '#6F3CC3',
   primaryDark: '#5A2EA6',
   primaryLight: '#F3EDFF',
@@ -16,6 +16,7 @@ export const Colors = {
   yellow: '#FFC857',
   yellowLight: '#FFFBEB',
   background: '#F4F4F8',
+  surface: '#FFFFFF',
   white: '#FFFFFF',
   text: '#1A1A2E',
   textSecondary: '#6B7280',
@@ -23,7 +24,45 @@ export const Colors = {
   border: '#E8E8F0',
   shadow: 'rgba(111,60,195,0.12)',
   errorRed: '#EF4444',
+  errorLight: '#FEF2F2',
   cardBg: '#FFFFFF',
   gradientStart: '#6F3CC3',
   gradientEnd: '#4A1FA3',
 };
+
+export type ThemeColors = typeof lightColors;
+
+export const darkColors: ThemeColors = {
+  primary: '#8B5CF6',
+  primaryDark: '#6D3FD6',
+  primaryLight: '#2A2146',
+  primaryMid: '#A78BFA',
+  blue: '#5B8DEF',
+  blueDark: '#3B6FE0',
+  blueLight: '#1B2A47',
+  green: '#34C759',
+  greenDark: '#22C55E',
+  greenLight: '#13301F',
+  orange: '#FB923C',
+  orangeLight: '#3A2414',
+  teal: '#2DD4BF',
+  tealLight: '#0F2F2C',
+  yellow: '#FFC857',
+  yellowLight: '#3A3014',
+  background: '#121018',
+  surface: '#1C1A24',
+  white: '#FFFFFF',
+  text: '#F3F2F7',
+  textSecondary: '#A3A1B2',
+  textLight: '#7B7990',
+  border: '#2B2837',
+  shadow: 'rgba(0,0,0,0.5)',
+  errorRed: '#F87171',
+  errorLight: '#3B1A1A',
+  cardBg: '#1C1A24',
+  gradientStart: '#5B2EAE',
+  gradientEnd: '#3A1783',
+};
+
+// Alias temporario enquanto as telas migram para o tema dinamico (removido adiante).
+export const Colors = lightColors;
