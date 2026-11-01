@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -15,10 +15,13 @@ import {
   useDeleteLembreteMutation,
 } from '../../../src/hooks/useLembretes';
 import { ApiError } from '../../../src/services/api';
-import { Colors } from '../../../src/constants/colors';
+import type { ThemeColors } from '../../../src/constants/colors';
+import { useTheme } from '../../../src/providers/ThemeProvider';
 import type { LembreteResponse } from '../../../src/types/api';
 
 export default function AgendaScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { isVeterinario } = useAuth();
 
@@ -99,7 +102,7 @@ export default function AgendaScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[Colors.primary]} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
       >
         <LinearGradient colors={['#3B0F8C', '#6D28D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.headerTopRow}>
@@ -112,7 +115,7 @@ export default function AgendaScreen() {
             </View>
             {isVeterinario && (
               <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/agenda/new')} activeOpacity={0.85}>
-                <Ionicons name="add" size={24} color={Colors.white} />
+                <Ionicons name="add" size={24} color={colors.white} />
               </TouchableOpacity>
             )}
           </View>
@@ -140,7 +143,7 @@ export default function AgendaScreen() {
         <View style={styles.sheet}>
           {!isVeterinario && (
             <View style={styles.infoBanner}>
-              <Ionicons name="information-circle-outline" size={16} color={Colors.primary} />
+              <Ionicons name="information-circle-outline" size={16} color={colors.primary} />
               <Text style={styles.infoBannerText}>
                 Novos cuidados são criados pelo veterinário responsável. Você pode marcá-los como concluídos aqui.
               </Text>
@@ -195,9 +198,9 @@ export default function AgendaScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#3B0F8C' },
-  scroll: { flex: 1, backgroundColor: '#F7F7F9' },
+  scroll: { flex: 1, backgroundColor: colors.background },
   content: { paddingBottom: 0 },
 
   header: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 },
@@ -223,7 +226,7 @@ const styles = StyleSheet.create({
   statLabelAccent: { color: 'rgba(196,181,253,0.7)' },
 
   sheet: {
-    backgroundColor: '#F7F7F9',
+    backgroundColor: colors.background,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     marginTop: -24,
@@ -236,17 +239,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: colors.primaryLight,
     borderRadius: 12,
     padding: 12,
     marginBottom: 20,
   },
-  infoBannerText: { flex: 1, fontSize: 12, color: Colors.primaryDark, lineHeight: 17 },
+  infoBannerText: { flex: 1, fontSize: 12, color: colors.primaryDark, lineHeight: 17 },
 
   section: { marginBottom: 24 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   sectionDot: { width: 6, height: 6, borderRadius: 3 },
-  sectionTitle: { fontSize: 11, fontWeight: '700', color: '#6B7280', letterSpacing: 1.2, textTransform: 'uppercase' },
+  sectionTitle: { fontSize: 11, fontWeight: '700', color: colors.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase' },
 
   bottomPad: { height: 40 },
 });

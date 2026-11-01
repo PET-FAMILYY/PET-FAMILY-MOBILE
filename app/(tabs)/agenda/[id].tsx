@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Colors } from '../../../src/constants/colors';
+import type { ThemeColors } from '../../../src/constants/colors';
+import { useTheme } from '../../../src/providers/ThemeProvider';
 import { LembreteForm } from '../../../src/components/LembreteForm';
 import { useLembreteQuery, useUpdateLembreteMutation } from '../../../src/hooks/useLembretes';
 import { LoadingState, ErrorState, EmptyState } from '../../../src/components/StateViews';
@@ -14,6 +15,8 @@ import { isoDateToBR } from '../../../src/utils/validators';
 import type { LembreteRequest } from '../../../src/types/api';
 
 export default function EditLembreteScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { isVeterinario } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,7 +56,7 @@ export default function EditLembreteScreen() {
       <LinearGradient colors={['#3B0F8C', '#6D28D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.headerGrad}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="chevron-back" size={22} color={Colors.white} />
+            <Ionicons name="chevron-back" size={22} color={colors.white} />
           </TouchableOpacity>
           <View>
             <Text style={styles.headerTitle}>Editar Cuidado</Text>
@@ -94,9 +97,9 @@ export default function EditLembreteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#3B0F8C' },
-  scroll: { flex: 1, backgroundColor: '#F7F7F9' },
+  scroll: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16 },
   headerGrad: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 22, fontWeight: '900', color: Colors.white },
+  headerTitle: { fontSize: 22, fontWeight: '900', color: colors.white },
   headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
-  lockedText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 40, lineHeight: 20 },
+  lockedText: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: 40, lineHeight: 20 },
 });
