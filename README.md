@@ -1,9 +1,11 @@
 # Pet Family — Mobile
 
 App de cuidado contínuo para pets, integrado à API Java PET-FAMILY-JAVA (Spring Boot).
-Sprint 3 — Mobile Application Development.
+Sprint 4 (entrega final) — Mobile Application Development.
 
-📹 **Vídeo de apresentação (Sprint 3):** https://youtu.be/KfhxMpY1Bdk
+📹 **Vídeo de apresentação (Sprint 4):** _link a ser adicionado após a gravação_
+
+📹 Vídeo da Sprint 3: https://youtu.be/KfhxMpY1Bdk
 
 ---
 
@@ -38,6 +40,7 @@ clínica, sem mocks e sem dados fictícios nos fluxos avaliados.
 | TanStack Query (`@tanstack/react-query`) | Cache, `useQuery`/`useMutation`, invalidação automática |
 | Axios | Cliente HTTP centralizado (`src/services/api.ts`) |
 | Expo SecureStore | Persistência segura do token JWT |
+| Expo Notifications | Notificações locais de cuidados e consultas |
 | @expo/vector-icons, expo-linear-gradient | UI/design |
 
 
@@ -67,7 +70,16 @@ na raiz do projeto (lido em `src/services/api.ts`). Esse arquivo não é version
 cp .env.example .env
 ```
 
-Depois, ajuste o valor de `EXPO_PUBLIC_API_URL` em `.env` conforme onde a API estiver acessível:
+O `.env.example` já vem apontando para a API publicada (Railway) e para a API de IA (Render),
+então o app funciona sem alterar nada. Variáveis disponíveis:
+
+| Variável | Descrição | Padrão |
+|---|---|---|
+| `EXPO_PUBLIC_API_URL` | API Java (autenticação, pets, lembretes, consultas, dashboard) | Railway |
+| `EXPO_PUBLIC_IA_API_URL` | API de IA do assistente PetDoc (Gemini) | `https://pet-family-ia.onrender.com` |
+
+Para rodar a API Java localmente, ajuste o valor de `EXPO_PUBLIC_API_URL` em `.env` conforme onde
+ela estiver acessível:
 
 | Onde o app roda | Host da API Java | Exemplo de `EXPO_PUBLIC_API_URL` |
 |---|---|---|
@@ -157,9 +169,9 @@ senha.
 | Consulta | `/appointment` | Tutor/Vet | Agendamento (Tutor) ou agenda clínica (Veterinário) |
 | Clínica (Dashboard) | `/dashboard` | Veterinário | Indicadores reais (`GET /dashboard/resumo`) |
 | Chat | `/chat` | Tutor | Assistente com respostas geradas pela API (ver observação abaixo) |
-| Conta | `/about` | Tutor/Vet | Dados da conta logada, logout, sobre o projeto |
+| Sobre | `/about` | Tutor/Vet | Dados da conta, aparência (tema), **Sobre o App** (versão e hash do commit), logout e sobre o projeto |
 
-Dez telas distintas, todas acessíveis por Expo Router (grupos `(auth)` e `(tabs)`, com rotas
+Onze telas distintas, todas acessíveis por Expo Router (grupos `(auth)` e `(tabs)`, com rotas
 aninhadas em `pets/` e `agenda/`).
 
 ---
@@ -183,7 +195,7 @@ Acessível ao Tutor para os próprios pets, e ao Veterinário para qualquer pet.
 Após qualquer mutação, a lista, o detalhe, a Home e o Dashboard (contadores) são invalidados e
 atualizados automaticamente via TanStack Query, sem recarregar o app.
 
-### 2. Lembretes / Cuidados preventivos (`/lembretes/*`, tela Lembretes)
+### 2. Lembretes / Cuidados preventivos (`/agenda/*`, tela Lembretes)
 
 Na API, Create, Update e Delete são exclusivos do perfil Veterinário
 (`@PreAuthorize("hasRole('VETERINARIO')")`); o Tutor só lê e conclui. Para demonstrar o CRUD
@@ -198,6 +210,56 @@ completo pela interface, entre com a conta de Veterinário:
 "Marcar como concluído" (Tutor, `POST /lembretes/{id}/concluir`) e "Cancelar" (Veterinário,
 `POST /lembretes/{id}/cancelar`) são ações de negócio adicionais e não substituem o DELETE real,
 que também está implementado.
+
+---
+
+## Notificações (locais)
+
+O app usa notificações **locais** (`expo-notifications`), disparadas por eventos reais do fluxo do
+Tutor — nada é manual nem fixo:
+
+| Evento real | Notificação | Ao tocar |
+|---|---|---|
+| Tutor agenda uma consulta | Confirmação imediata ("Consulta agendada") | Abre **Consulta** |
+| Consulta agendada (vinda da API) | Lembrete **24h** e **1h** antes do horário | Abre **Consulta** |
+| Cuidado preventivo pendente (vacina, vermífugo, check-up) | Aviso na **véspera (18h)** e **no dia (9h)** | Abre **Lembretes** |
+| Consulta cancelada/realizada, cuidado concluído/cancelado | Lembretes futuros são **cancelados** automaticamente | — |
+| Logout | Todos os lembretes agendados são cancelados (nada vaza para a próxima conta) | — |
+
+Camadas: `services/notificationsService.ts` encapsula o `expo-notifications` (permissão, canal
+Android, agendamento); `services/reminderNotifications.ts` traduz lembretes e consultas da API em
+notificações; `hooks/useNotifications.ts` pede a permissão, sincroniza os agendamentos sempre que os
+dados da API mudam e navega para a tela certa ao tocar na notificação (app aberto, em segundo plano
+ou fechado).
+
+Para ver em ação, logado como Tutor: agende uma consulta na aba **Consulta** (a confirmação aparece
+na hora) com horário daqui a pouco mais de 1h — o lembrete de 1h chega no momento certo. Cuidados
+criados pelo Veterinário para o pet do tutor passam a ser agendados quando o Tutor abre o app.
+
+---
+
+## Tema claro e escuro
+
+O app segue o tema do sistema por padrão e permite escolher **Sistema / Claro / Escuro** em
+**Sobre → Aparência** (a escolha é persistida). Todas as telas e componentes usam as cores do tema
+(`src/constants/colors.ts`, `src/providers/ThemeProvider.tsx` e o hook `useTheme`).
+
+---
+
+## Sobre o App e versão publicada
+
+A aba **Sobre** exibe a versão e o **hash do commit** do qual o app foi gerado. O valor é injetado em
+tempo de build por `app.config.js` (variável `EAS_BUILD_GIT_COMMIT_HASH` no EAS Build, ou
+`git rev-parse HEAD` localmente), então o APK publicado aponta para o commit exato do repositório.
+Se o build for feito com alterações não commitadas, a tela mostra "(alterações locais)" — por isso,
+**faça o commit antes de gerar o build**.
+
+---
+
+## Publicação (Firebase App Distribution)
+
+O passo a passo (build com EAS, upload no Firebase App Distribution e cadastro do professor como
+tester) está em [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
 
 ---
 
@@ -217,13 +279,23 @@ mocks, listas fixas ou fallbacks fictícios nesses fluxos. O TanStack Query cuid
 
 ---
 
-## Assistente (Chat) — observação importante
+## Assistente (Chat) — PetDoc com IA generativa
 
-O Chat consome um endpoint real da API (`POST /interacoes-ia`, `GET /interacoes-ia/pet/{petId}`),
-restrito ao perfil Tutor. A integração mobile-API é real (autenticação, persistência no banco,
-histórico por pet). A geração da resposta em si, porém, é feita por regras de palavras-chave no
-backend (`InteracaoIAService`), não por um modelo de IA generativa de terceiros — por isso o Chat
-não é contado como um dos dois CRUDs, apenas como uma terceira integração real.
+O Chat (restrito ao perfil Tutor) consome o serviço de IA do repositório
+[PET-FAMILY-IA](https://github.com/PET-FAMILYY/PET-FAMILY-IA): uma API FastAPI (PetDoc) publicada
+no Render que gera as respostas com o Gemini (Google AI). A cada pergunta o app envia os dados do
+pet selecionado (nome, espécie, raça, idade, peso e observações de saúde), que entram no
+*system prompt* para personalizar a resposta.
+
+- Endpoints: `POST /interacoes-ia` e `GET /interacoes-ia/pet/{petId}` (cliente em
+  `src/services/interacoesIaApi.ts`).
+- URL configurável por `EXPO_PUBLIC_IA_API_URL` (padrão: `https://pet-family-ia.onrender.com`).
+- Se o Gemini estiver sobrecarregado (502/503/504), o app tenta até 3 vezes e depois exibe uma
+  mensagem amigável.
+- O histórico das conversas fica em memória no serviço de IA e é perdido quando ele reinicia.
+- O plano gratuito do Render "dorme" por inatividade: a primeira pergunta pode demorar.
+
+O Chat não é contado como um dos dois CRUDs, apenas como uma terceira integração real.
 
 ---
 
@@ -232,16 +304,21 @@ não é contado como um dos dois CRUDs, apenas como uma terceira integração re
 ```
 app/                    rotas (Expo Router) - (auth) publico, (tabs) protegido
 src/
-  components/           UI reutilizavel (forms, cards, estados de loading/erro/vazio)
-  services/              api.ts (axios + interceptors) e um arquivo por recurso (*Api.ts)
-  hooks/                 useQuery/useMutation por recurso + queryKeys.ts centralizado
-  providers/             AuthProvider (sessao) e QueryProvider (TanStack Query)
-  types/api.ts            contratos tipados espelhando os DTOs Java
-  utils/validators.ts    validacoes e conversoes de data/hora (BR / ISO)
+  components/           UI reutilizavel (forms, cards, GradientHeader, estados de loading/erro/vazio)
+    about/              blocos da tela Sobre (conta, aparencia, versao/commit, equipe)
+  constants/colors.ts   paletas clara e escura
+  services/              api.ts (axios + interceptors), um arquivo por recurso (*Api.ts),
+                         notificationsService.ts e reminderNotifications.ts (notificacoes locais)
+  hooks/                 useQuery/useMutation por recurso, useNotifications.ts e queryKeys.ts centralizado
+  providers/             AuthProvider (sessao), ThemeProvider (tema) e QueryProvider (TanStack Query)
+  types/                 api.ts (contratos espelhando os DTOs Java) e icons.ts (nomes de icones tipados)
+  utils/                 validators.ts (datas/horas BR e ISO), formValidation.ts (regras dos formularios), appInfo.ts
 ```
 
 Nenhuma tela chama `axios` ou `fetch` diretamente, nem define `useQuery`/`useMutation` inline —
-tudo passa pelos hooks de `src/hooks`.
+tudo passa pelos hooks de `src/hooks`. As regras de validação dos formulários de login, cadastro e
+agendamento ficam em `src/utils/formValidation.ts`, e o cabeçalho em gradiente é o componente
+reutilizável `GradientHeader`.
 
 ---
 
@@ -257,4 +334,4 @@ tudo passa pelos hooks de `src/hooks`.
 
 ---
 
-Pet Family Mobile — Sprint 3 — integrado à API PET-FAMILY-JAVA
+Pet Family Mobile — Sprint 4 — integrado à API PET-FAMILY-JAVA e à API de IA PET-FAMILY-IA

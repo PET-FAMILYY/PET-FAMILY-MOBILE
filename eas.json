@@ -1,0 +1,27 @@
+{
+  "cli": {
+    "version": ">= 10.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://pet-family-java-production.up.railway.app",
+        "EXPO_PUBLIC_IA_API_URL": "https://pet-family-ia.onrender.com"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://pet-family-java-production.up.railway.app",
+        "EXPO_PUBLIC_IA_API_URL": "https://pet-family-ia.onrender.com"
+      }
+    }
+  }
+}
