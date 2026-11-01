@@ -14,16 +14,7 @@ const mensagemAmigavel = (status: number) =>
     ? 'O assistente está com muita demanda no momento. Tente novamente em instantes.'
     : 'Não foi possível consultar o assistente. Tente novamente.';
 
-export async function criarInteracaoIA(
-  data: InteracaoIARequest & {
-    petNome?: string;
-    petEspecie?: string;
-    petRaca?: string | null;
-    petIdade?: number | null;
-    petPeso?: number | null;
-    petObservacoes?: string | null;
-  }
-): Promise<InteracaoIAResponse> {
+export async function criarInteracaoIA(data: InteracaoIARequest): Promise<InteracaoIAResponse> {
   let status = 0;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {

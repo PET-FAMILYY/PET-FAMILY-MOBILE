@@ -22,6 +22,7 @@ import { usePetsQuery } from '../../src/hooks/usePets';
 import { useMeusLembretesQuery } from '../../src/hooks/useLembretes';
 import { useDashboardQuery } from '../../src/hooks/useDashboard';
 import { isoDateToBR } from '../../src/utils/validators';
+import type { IoniconName } from '../../src/types/icons';
 
 const { width } = Dimensions.get('window');
 const CARD_W = (width - 44) / 2;
@@ -40,7 +41,7 @@ export default function HomeScreen() {
   const firstPet = pets[0];
   const pendentes = (lembretesQuery.data ?? []).filter(l => l.status === 'PENDENTE').slice(0, 3);
 
-  const categories = isVeterinario
+  const categories: { label: string; icon: IoniconName; route: string }[] = isVeterinario
     ? [
         { label: 'Pets', icon: 'paw', route: '/pets' },
         { label: 'Lembretes', icon: 'notifications', route: '/agenda' },
@@ -132,11 +133,11 @@ export default function HomeScreen() {
               <TouchableOpacity
                 key={cat.label}
                 style={styles.quickItem}
-                onPress={() => router.push(cat.route as any)}
+                onPress={() => router.push(cat.route)}
                 activeOpacity={0.8}
               >
                 <View style={styles.quickIcon}>
-                  <Ionicons name={cat.icon as any} size={23} color={colors.primary} />
+                  <Ionicons name={cat.icon} size={23} color={colors.primary} />
                 </View>
                 <Text style={styles.quickLabel}>{cat.label}</Text>
               </TouchableOpacity>

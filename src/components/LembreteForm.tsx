@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ThemeColors } from '../constants/colors';
 import { useTheme } from '../providers/ThemeProvider';
+import type { IoniconName } from '../types/icons';
 import { usePetsQuery } from '../hooks/usePets';
 import { brDateToIso, isFutureDateTime, isoDateToBR } from '../utils/validators';
 import { LoadingState, ErrorState } from './StateViews';
@@ -141,7 +142,7 @@ export const LembreteForm: React.FC<LembreteFormProps> = ({ initialValues, onSub
 
 const Field: React.FC<{
   label: string;
-  icon: string;
+  icon: IoniconName;
   value: string;
   onChangeText: (v: string) => void;
   placeholder: string;
@@ -155,7 +156,7 @@ const Field: React.FC<{
   <View style={styles.fieldWrap}>
     <Text style={styles.fieldLabel}>{label}</Text>
     <View style={[styles.inputWrap, error ? styles.inputError : null]}>
-      <Ionicons name={icon as any} size={18} color={colors.textLight} style={styles.inputIcon} />
+      <Ionicons name={icon} size={18} color={colors.textLight} style={styles.inputIcon} />
       <TextInput
         style={styles.inputInner}
         value={value}

@@ -74,7 +74,7 @@ export default function ChatScreen() {
         petIdade: selectedPet?.idade ?? undefined,
         petPeso: selectedPet?.peso ?? undefined,
         petObservacoes: selectedPet?.observacoesSaude ?? undefined,
-      } as any,
+      },
       {
         onError: (err) => {
           const message = err instanceof Error ? err.message : 'Não foi possível enviar sua pergunta.';

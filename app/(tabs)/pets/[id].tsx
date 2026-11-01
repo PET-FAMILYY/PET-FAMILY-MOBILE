@@ -68,7 +68,7 @@ export default function EditPetScreen() {
 
         {current && current.nome.length > 0 && (
           <View style={styles.previewPill}>
-            <MaterialCommunityIcons name={speciesObj.icon as any} size={16} color={colors.white} style={{ marginRight: 6 }} />
+            <MaterialCommunityIcons name={speciesObj.icon} size={16} color={colors.white} style={{ marginRight: 6 }} />
             <Text style={styles.previewName}>{current.nome}</Text>
             {current.raca ? <Text style={styles.previewBreed}> · {current.raca}</Text> : null}
             {isSaved && (

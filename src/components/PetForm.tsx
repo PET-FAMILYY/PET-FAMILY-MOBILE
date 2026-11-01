@@ -4,9 +4,10 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ThemeColors } from '../constants/colors';
 import { useTheme } from '../providers/ThemeProvider';
+import type { MaterialIconName } from '../types/icons';
 import type { PetRequest } from '../types/api';
 
-export const SPECIES: { value: string; label: string; icon: string }[] = [
+export const SPECIES: { value: string; label: string; icon: MaterialIconName }[] = [
   { value: 'Cachorro', label: 'Cão', icon: 'dog' },
   { value: 'Gato', label: 'Gato', icon: 'cat' },
   { value: 'Outro', label: 'Outro', icon: 'paw' },
@@ -94,7 +95,7 @@ export const PetForm: React.FC<PetFormProps> = ({ initialValues, onSubmit, submi
             activeOpacity={0.8}
           >
             <MaterialCommunityIcons
-              name={s.icon as any}
+              name={s.icon}
               size={28}
               color={form.especie === s.value ? colors.primary : colors.textLight}
               style={styles.speciesIcon}

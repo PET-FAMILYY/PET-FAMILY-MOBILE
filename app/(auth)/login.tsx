@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useTheme } from '../../src/providers/ThemeProvider';
-import { isValidEmail } from '../../src/utils/validators';
+import { validateLogin } from '../../src/utils/formValidation';
 import { useLoginMutation } from '../../src/hooks/useAuthMutations';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { ApiError } from '../../src/services/api';
@@ -33,10 +33,7 @@ export default function LoginScreen() {
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
 
   const validate = () => {
-    const e: typeof errors = {};
-    if (!email.trim()) e.email = 'E-mail obrigatório';
-    else if (!isValidEmail(email)) e.email = 'E-mail inválido';
-    if (!password) e.password = 'Senha obrigatória';
+    const e = validateLogin(email, password);
     setErrors(e);
     return Object.keys(e).length === 0;
   };

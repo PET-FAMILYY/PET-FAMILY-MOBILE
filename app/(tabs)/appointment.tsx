@@ -32,7 +32,8 @@ import {
 import { ConsultaCard } from '../../src/components/ConsultaCard';
 import { LoadingState, ErrorState, EmptyState } from '../../src/components/StateViews';
 import { ApiError } from '../../src/services/api';
-import { brDateToIso, isFutureDateTime, timeToApiFormat, isValidTime } from '../../src/utils/validators';
+import { brDateToIso, timeToApiFormat } from '../../src/utils/validators';
+import { validateAgendamento } from '../../src/utils/formValidation';
 
 const getTipos = (colors: ThemeColors): { label: string; emoji: string; color: string }[] => [
   { label: 'Preventiva', emoji: '🛡️', color: colors.primary },
@@ -71,11 +72,7 @@ function TutorConsultasScreen() {
   };
 
   const validate = () => {
-    const e: Record<string, string> = {};
-    if (!petId) e.petId = 'Selecione um pet.';
-    if (!data.trim() || !brDateToIso(data)) e.data = 'Data inválida (DD/MM/AAAA).';
-    if (!horario.trim() || !isValidTime(horario)) e.horario = 'Horário inválido (HH:MM).';
-    if (!e.data && !e.horario && !isFutureDateTime(data, horario)) e.data = 'Data/horário precisa ser futuro.';
+    const e = validateAgendamento({ petId, data, horario });
     setErrors(e);
     return Object.keys(e).length === 0;
   };

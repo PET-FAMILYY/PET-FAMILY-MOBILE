@@ -16,7 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useTheme } from '../../src/providers/ThemeProvider';
-import { isValidEmail } from '../../src/utils/validators';
+import type { IoniconName } from '../../src/types/icons';
+import { validateRegistro } from '../../src/utils/formValidation';
 import { useRegisterMutation } from '../../src/hooks/useAuthMutations';
 import { ApiError } from '../../src/services/api';
 
@@ -37,14 +38,7 @@ export default function RegisterScreen() {
   }>({});
 
   const validate = () => {
-    const e: typeof errors = {};
-    if (!name.trim()) e.name = 'Nome obrigatório';
-    if (!email.trim()) e.email = 'E-mail obrigatório';
-    else if (!isValidEmail(email)) e.email = 'E-mail inválido';
-    if (!password) e.password = 'Senha obrigatória';
-    else if (password.length < 6) e.password = 'Mínimo de 6 caracteres';
-    if (!confirm) e.confirm = 'Confirmação obrigatória';
-    else if (confirm !== password) e.confirm = 'As senhas não coincidem';
+    const e = validateRegistro({ name, email, password, confirm });
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -71,7 +65,7 @@ export default function RegisterScreen() {
     label: string,
     value: string,
     onChange: (v: string) => void,
-    icon: string,
+    icon: IoniconName,
     placeholder: string,
     error?: string,
     extra?: {
@@ -84,7 +78,7 @@ export default function RegisterScreen() {
     <>
       <Text style={styles.label}>{label}</Text>
       <View style={[styles.inputWrap, error ? styles.inputError : null]}>
-        <Ionicons name={icon as any} size={20} color={colors.textLight} style={styles.inputIcon} />
+        <Ionicons name={icon} size={20} color={colors.textLight} style={styles.inputIcon} />
         <TextInput
           style={styles.input}
           placeholder={placeholder}

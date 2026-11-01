@@ -153,6 +153,12 @@ export interface InteracaoIARequest {
   pergunta: string;
   categoria?: string;
   petId: number;
+  petNome?: string;
+  petEspecie?: string;
+  petRaca?: string | null;
+  petIdade?: number | null;
+  petPeso?: number | null;
+  petObservacoes?: string | null;
 }
 
 export interface InteracaoIAResponse {

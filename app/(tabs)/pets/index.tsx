@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import type { MaterialIconName } from '../../../src/types/icons';
 import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ThemeColors } from '../../../src/constants/colors';
@@ -20,7 +21,7 @@ import { LoadingState, ErrorState, EmptyState } from '../../../src/components/St
 import { ApiError } from '../../../src/services/api';
 import type { PetResponse } from '../../../src/types/api';
 
-const speciesIcon = (especie: string) => {
+const speciesIcon = (especie: string): MaterialIconName => {
   const lower = especie.toLowerCase();
   if (lower.includes('cachorro') || lower.includes('cão') || lower.includes('cao')) return 'dog';
   if (lower.includes('gato')) return 'cat';
@@ -106,7 +107,7 @@ export default function PetsListScreen() {
                 onPress={() => router.push(`/pets/${item.id}`)}
               >
                 <View style={styles.petAvatar}>
-                  <MaterialCommunityIcons name={speciesIcon(item.especie) as any} size={26} color={colors.primary} />
+                  <MaterialCommunityIcons name={speciesIcon(item.especie)} size={26} color={colors.primary} />
                 </View>
                 <View style={styles.petInfo}>
                   <Text style={styles.petName}>{item.nome}</Text>

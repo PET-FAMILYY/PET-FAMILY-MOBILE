@@ -4,8 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { AboutCard, SectionTitle } from './AboutCard';
 import type { ThemeColors } from '../../constants/colors';
 import { useTheme } from '../../providers/ThemeProvider';
+import type { IoniconName } from '../../types/icons';
 
-const TECHS = [
+const TECHS: { name: string; desc: string; icon: IoniconName }[] = [
   { name: 'React Native', desc: 'Framework mobile', icon: 'phone-portrait' },
   { name: 'Expo Router', desc: 'Navegação entre telas', icon: 'map' },
   { name: 'TanStack Query', desc: 'Estado de servidor e cache', icon: 'sync' },
@@ -59,7 +60,7 @@ export function ProjectInfo() {
         {TECHS.map((tech, index) => (
           <View key={index} style={styles.techCard}>
             <View style={styles.techIconBox}>
-              <Ionicons name={tech.icon as any} size={22} color={colors.primary} />
+              <Ionicons name={tech.icon} size={22} color={colors.primary} />
             </View>
             <Text style={styles.techName}>{tech.name}</Text>
             <Text style={styles.techDesc}>{tech.desc}</Text>

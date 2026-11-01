@@ -50,7 +50,7 @@ export default function NewPetScreen() {
 
         {preview.nome.length > 0 && (
           <View style={styles.previewPill}>
-            <MaterialCommunityIcons name={speciesObj.icon as any} size={16} color={colors.white} style={{ marginRight: 6 }} />
+            <MaterialCommunityIcons name={speciesObj.icon} size={16} color={colors.white} style={{ marginRight: 6 }} />
             <Text style={styles.previewName}>{preview.nome}</Text>
             {preview.raca ? <Text style={styles.previewBreed}> · {preview.raca}</Text> : null}
           </View>
