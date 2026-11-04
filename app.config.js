@@ -13,11 +13,15 @@ const git = (command) => {
 const commitHash = process.env.EAS_BUILD_GIT_COMMIT_HASH || git('rev-parse HEAD') || 'desconhecido';
 const commitDirty = !process.env.EAS_BUILD_GIT_COMMIT_HASH && git('status --porcelain') !== '';
 
+// Momento em que a configuracao foi avaliada: no EAS Build, e a data do build do APK.
+const buildDate = new Date().toISOString();
+
 module.exports = ({ config }) => ({
   ...config,
   extra: {
     ...config.extra,
     commitHash,
     commitDirty,
+    buildDate,
   },
 });

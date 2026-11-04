@@ -3,6 +3,7 @@ import Constants from 'expo-constants';
 interface AppExtra {
   commitHash?: string;
   commitDirty?: boolean;
+  buildDate?: string;
 }
 
 export interface AppInfo {
@@ -11,6 +12,7 @@ export interface AppInfo {
   commitHash: string;
   commitShort: string;
   commitDirty: boolean;
+  buildDate: string | null;
 }
 
 export const getAppInfo = (): AppInfo => {
@@ -23,5 +25,6 @@ export const getAppInfo = (): AppInfo => {
     commitHash,
     commitShort: commitHash.slice(0, 7),
     commitDirty: extra.commitDirty ?? false,
+    buildDate: extra.buildDate ?? null,
   };
 };

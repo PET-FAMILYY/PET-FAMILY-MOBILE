@@ -5,6 +5,11 @@ import type { ThemeColors } from '../../constants/colors';
 import { useTheme } from '../../providers/ThemeProvider';
 import { getAppInfo } from '../../utils/appInfo';
 
+const formatBuildDate = (iso: string): string => {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleString('pt-BR');
+};
+
 export function AppInfoCard() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -23,7 +28,13 @@ export function AppInfoCard() {
           {info.commitDirty ? ' (alterações locais)' : ''}
         </Text>
       </View>
-      <Text style={styles.hashLabel}>Hash completo do commit</Text>
+      {info.buildDate && (
+        <View style={styles.row}>
+          <Text style={styles.label}>Build</Text>
+          <Text style={styles.value}>{formatBuildDate(info.buildDate)}</Text>
+        </View>
+      )}
+      <Text style={styles.hashLabel}>Hash completo do commit (segure para copiar)</Text>
       <Text style={styles.hash} selectable>{info.commitHash}</Text>
     </AboutCard>
   );
