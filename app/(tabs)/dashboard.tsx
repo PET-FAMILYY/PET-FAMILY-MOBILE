@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientHeader } from '../../src/components/GradientHeader';
@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { useDashboardQuery } from '../../src/hooks/useDashboard';
 import { LoadingState, ErrorState, EmptyState } from '../../src/components/StateViews';
+import { ThemedRefreshControl } from '../../src/components/ThemedRefreshControl';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useTheme } from '../../src/providers/ThemeProvider';
 
@@ -36,7 +37,7 @@ export default function DashboardScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
+        refreshControl={<ThemedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
       >
         <GradientHeader colors={[colors.gradientEnd, colors.gradientStart, colors.primaryMid]} style={styles.header}>
           <View style={styles.headerRow}>
