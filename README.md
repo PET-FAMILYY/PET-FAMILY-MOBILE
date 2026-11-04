@@ -3,7 +3,7 @@
 App de cuidado contínuo para pets, integrado à API Java PET-FAMILY-JAVA (Spring Boot).
 Sprint 4 (entrega final) — Mobile Application Development.
 
-📹 **Vídeo de apresentação (Sprint 4):** https://youtu.be/8ehvkCbqVEE
+📹 **Vídeo de apresentação (Sprint 4):** https://youtu.be/UAb5SW92A3w?si=XDdlMvt4YwfWrAFk
 
 📹 Vídeo da Sprint 3: https://youtu.be/KfhxMpY1Bdk
 
