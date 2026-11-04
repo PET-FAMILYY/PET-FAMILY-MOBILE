@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import { useChatMessages, useCreateInteracaoIAMutation } from '../../src/hooks/u
 import { useAuth } from '../../src/providers/AuthProvider';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useTheme } from '../../src/providers/ThemeProvider';
+import type { ChatMessage } from '../../src/types';
 import { montarPergunta } from '../../src/utils/chat';
 import { showErrorAlert } from '../../src/utils/dialogs';
 
@@ -49,6 +50,7 @@ export default function ChatScreen() {
 
   const { messages, isLoading, isError, refetch } = useChatMessages(petId ?? undefined);
   const createMutation = useCreateInteracaoIAMutation();
+  const listRef = useRef<FlatList<ChatMessage>>(null);
 
   const selectedPet = pets.find(p => p.id === petId);
 
@@ -121,6 +123,8 @@ export default function ChatScreen() {
               />
             ) : (
               <FlatList
+                ref={listRef}
+                onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
                 data={messages}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => <ChatBubble message={item} />}
