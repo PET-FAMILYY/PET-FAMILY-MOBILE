@@ -11,20 +11,20 @@ import {
   StatusBar,
   Image,
   ImageBackground,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientHeader } from '../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { ChatBubble } from '../../src/components/ChatBubble';
-import { EmptyState, LoadingState } from '../../src/components/StateViews';
+import { EmptyState, ErrorState, LoadingState } from '../../src/components/StateViews';
 import { usePetsQuery } from '../../src/hooks/usePets';
-import { useInteracoesDoPetQuery, useCreateInteracaoIAMutation } from '../../src/hooks/useInteracoesIA';
+import { useChatMessages, useCreateInteracaoIAMutation } from '../../src/hooks/useInteracoesIA';
 import { useAuth } from '../../src/providers/AuthProvider';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useTheme } from '../../src/providers/ThemeProvider';
-import type { ChatMessage } from '../../src/types';
+import { montarPergunta } from '../../src/utils/chat';
+import { showErrorAlert } from '../../src/utils/dialogs';
 
 const QUICK_REPLIES = [
   { label: 'Vacina', key: 'Quais vacinas meu pet precisa?' },
@@ -47,16 +47,8 @@ export default function ChatScreen() {
     if (!petId && pets.length > 0) setPetId(pets[0].id);
   }, [pets, petId]);
 
-  const { data: historico, isLoading } = useInteracoesDoPetQuery(petId ?? undefined);
+  const { messages, isLoading, isError, refetch } = useChatMessages(petId ?? undefined);
   const createMutation = useCreateInteracaoIAMutation();
-
-  const messages: ChatMessage[] = useMemo(() => {
-    const items = [...(historico ?? [])].reverse();
-    return items.flatMap((i): ChatMessage[] => [
-      { id: `${i.id}-q`, text: i.pergunta, sender: 'user', timestamp: new Date(i.dataHora) },
-      { id: `${i.id}-a`, text: i.resposta, sender: 'ai', timestamp: new Date(i.dataHora) },
-    ]);
-  }, [historico]);
 
   const selectedPet = pets.find(p => p.id === petId);
 
@@ -64,24 +56,9 @@ export default function ChatScreen() {
     const msg = (text ?? input).trim();
     if (!msg || !petId || createMutation.isPending) return;
     setInput('');
-    createMutation.mutate(
-      {
-        pergunta: msg,
-        petId,
-        petNome: selectedPet?.nome,
-        petEspecie: selectedPet?.especie,
-        petRaca: selectedPet?.raca ?? undefined,
-        petIdade: selectedPet?.idade ?? undefined,
-        petPeso: selectedPet?.peso ?? undefined,
-        petObservacoes: selectedPet?.observacoesSaude ?? undefined,
-      },
-      {
-        onError: (err) => {
-          const message = err instanceof Error ? err.message : 'Não foi possível enviar sua pergunta.';
-          Alert.alert('Erro', message);
-        },
-      }
-    );
+    createMutation.mutate(montarPergunta(msg, petId, selectedPet), {
+      onError: (err) => showErrorAlert(err, 'Não foi possível enviar sua pergunta.'),
+    });
   };
 
   if (isVeterinario) {
@@ -132,6 +109,8 @@ export default function ChatScreen() {
           <EmptyState icon="paw-outline" title="Cadastre um pet" subtitle="É preciso ter um pet cadastrado para conversar com o assistente." />
         ) : isLoading ? (
           <LoadingState label="Carregando conversa..." />
+        ) : isError ? (
+          <ErrorState message="Não foi possível carregar a conversa." onRetry={refetch} />
         ) : (
           <ImageBackground source={require('../../assets/Papel_de_parede.png')} style={styles.list} resizeMode="cover">
             {messages.length === 0 ? (
