@@ -5,9 +5,10 @@ import { View, Platform, StyleSheet } from 'react-native';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useTheme } from '../../src/providers/ThemeProvider';
 import { useAuth } from '../../src/providers/AuthProvider';
+import type { IoniconName } from '../../src/types/icons';
 import { useNotificationSetup, useReminderSync } from '../../src/hooks/useNotifications';
 
-function TabIcon({ name, focused }: { name: any; color: string; focused: boolean }) {
+function TabIcon({ name, focused }: { name: IoniconName; color: string; focused: boolean }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (

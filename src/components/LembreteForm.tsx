@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, type KeyboardTypeOptions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ThemeColors } from '../constants/colors';
@@ -147,7 +147,7 @@ const Field: React.FC<{
   onChangeText: (v: string) => void;
   placeholder: string;
   error?: string;
-  keyboardType?: any;
+  keyboardType?: KeyboardTypeOptions;
 }> = ({ label, icon, value, onChangeText, placeholder, error, keyboardType }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);

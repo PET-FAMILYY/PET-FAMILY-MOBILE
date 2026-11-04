@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
   Image,
+  type KeyboardTypeOptions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,7 +20,7 @@ import { useTheme } from '../../src/providers/ThemeProvider';
 import type { IoniconName } from '../../src/types/icons';
 import { validateRegistro } from '../../src/utils/formValidation';
 import { useRegisterMutation } from '../../src/hooks/useAuthMutations';
-import { ApiError } from '../../src/services/api';
+import { getErrorMessage } from '../../src/utils/dialogs';
 
 export default function RegisterScreen() {
   const { colors, isDark } = useTheme();
@@ -54,8 +55,7 @@ export default function RegisterScreen() {
       },
       {
         onError: (err) => {
-          const message = err instanceof ApiError ? err.message : 'Não foi possível concluir o cadastro.';
-          setErrors({ general: message });
+          setErrors({ general: getErrorMessage(err, 'Não foi possível concluir o cadastro.') });
         },
       }
     );
@@ -72,7 +72,7 @@ export default function RegisterScreen() {
       secure?: boolean;
       show?: boolean;
       toggleShow?: () => void;
-      keyboardType?: any;
+      keyboardType?: KeyboardTypeOptions;
     }
   ) => (
     <>
