@@ -23,7 +23,7 @@ eas build -p android --profile preview
 ```
 
 - O perfil `preview` (em `eas.json`) gera um **APK** de distribuição interna, já com as URLs da API
-  Java (Railway) e da API de IA (Render) embutidas.
+  Java e da API de IA (ambas no Render) embutidas.
 - Ao final, baixe o `.apk` pelo link que o EAS mostra.
 - O EAS informa o commit usado no build; confira se é o mesmo do passo 0.
 

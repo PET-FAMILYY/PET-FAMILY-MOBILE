@@ -70,12 +70,12 @@ na raiz do projeto (lido em `src/services/api.ts`). Esse arquivo não é version
 cp .env.example .env
 ```
 
-O `.env.example` já vem apontando para a API publicada (Railway) e para a API de IA (Render),
+O `.env.example` já vem apontando para a API publicada (Render) e para a API de IA (Render),
 então o app funciona sem alterar nada. Variáveis disponíveis:
 
 | Variável | Descrição | Padrão |
 |---|---|---|
-| `EXPO_PUBLIC_API_URL` | API Java (autenticação, pets, lembretes, consultas, dashboard) | Railway |
+| `EXPO_PUBLIC_API_URL` | API Java (autenticação, pets, lembretes, consultas, dashboard) | `https://petfamily-api.onrender.com` |
 | `EXPO_PUBLIC_IA_API_URL` | API de IA do assistente PetDoc (Gemini) | `https://pet-family-ia.onrender.com` |
 
 Para rodar a API Java localmente, ajuste o valor de `EXPO_PUBLIC_API_URL` em `.env` conforme onde
@@ -98,13 +98,13 @@ seja aplicado:
 npx expo start -c
 ```
 
-#### Usando a API publicada (Railway)
+#### Usando a API publicada (Render)
 
-A API Java está publicada em produção no Railway. Para apontar o app para ela, basta definir no
+A API Java está publicada em produção no Render (Swagger em `/swagger-ui/index.html`). Para apontar o app para ela, basta definir no
 `.env`:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://pet-family-java-production.up.railway.app
+EXPO_PUBLIC_API_URL=https://petfamily-api.onrender.com
 ```
 
 Depois de criar ou atualizar o `.env`, reinicie o Metro com `npx expo start -c` para que a nova

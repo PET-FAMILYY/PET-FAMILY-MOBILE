@@ -10,7 +10,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://pet-family-java-production.up.railway.app",
+        "EXPO_PUBLIC_API_URL": "https://petfamily-api.onrender.com",
         "EXPO_PUBLIC_IA_API_URL": "https://pet-family-ia.onrender.com"
       }
     },
@@ -19,7 +19,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://pet-family-java-production.up.railway.app",
+        "EXPO_PUBLIC_API_URL": "https://petfamily-api.onrender.com",
         "EXPO_PUBLIC_IA_API_URL": "https://pet-family-ia.onrender.com"
       }
     }
