@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 const CHANNEL_ID = 'petfamily-cuidados';
 
 export type NotificationRoute = '/agenda' | '/appointment';
+export type NotificationPermission = 'granted' | 'denied' | 'undetermined';
 
 export interface NotificationPayload {
   title: string;
@@ -36,6 +37,16 @@ export async function setupNotifications(): Promise<boolean> {
     return requested.granted;
   } catch {
     return false;
+  }
+}
+
+export async function getNotificationPermission(): Promise<NotificationPermission> {
+  try {
+    const current = await Notifications.getPermissionsAsync();
+    if (current.granted) return 'granted';
+    return current.status === 'undetermined' ? 'undetermined' : 'denied';
+  } catch {
+    return 'denied';
   }
 }
 
@@ -104,7 +115,13 @@ export const onNotificationResponse = (listener: (route: NotificationRoute) => v
   return () => subscription.remove();
 };
 
+// A notificacao que abriu o app so deve levar o usuario a tela uma vez por sessao do app; sem isso,
+// remontar o layout (por exemplo, sair e entrar de novo) repetiria a navegacao.
+let initialRouteHandled = false;
+
 export async function getInitialNotificationRoute(): Promise<NotificationRoute | null> {
+  if (initialRouteHandled) return null;
+  initialRouteHandled = true;
   try {
     return routeFromResponse(await Notifications.getLastNotificationResponseAsync());
   } catch {
