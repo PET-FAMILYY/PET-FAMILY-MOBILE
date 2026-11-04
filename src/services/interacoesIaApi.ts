@@ -1,4 +1,5 @@
-import { InteracaoIARequest, InteracaoIAResponse } from '../types/api';
+import { ApiError } from './api';
+import type { InteracaoIARequest, InteracaoIAResponse } from '../types/api';
 
 // Sem barra final: "//interacoes-ia" retorna 404 no FastAPI.
 const IA_API_URL = (process.env.EXPO_PUBLIC_IA_API_URL ?? 'https://pet-family-ia.onrender.com').replace(/\/+$/, '');
@@ -26,29 +27,30 @@ export async function criarInteracaoIA(data: InteracaoIARequest): Promise<Intera
         body: JSON.stringify(data),
       });
     } catch {
-      throw new Error('Não foi possível conectar ao assistente. Verifique sua internet.');
+      throw new ApiError('Não foi possível conectar ao assistente. Verifique sua internet.');
     }
 
     if (response.ok) return response.json();
 
     status = response.status;
-    if (!RETRYABLE_STATUS.includes(status) || attempt === MAX_ATTEMPTS) {
-      const corpo = await response.text().catch(() => '');
-      console.warn(`[IA] POST ${IA_API_URL}/interacoes-ia -> ${status}`, corpo.slice(0, 500));
-      break;
-    }
+    if (!RETRYABLE_STATUS.includes(status) || attempt === MAX_ATTEMPTS) break;
     await sleep(attempt * 2000);
   }
 
-  throw new Error(`${mensagemAmigavel(status)} (erro ${status})`);
+  throw new ApiError(`${mensagemAmigavel(status)} (erro ${status})`, status);
 }
 
 export async function listInteracoesDoPet(petId: number): Promise<InteracaoIAResponse[]> {
-  const response = await fetch(`${IA_API_URL}/interacoes-ia/pet/${petId}`);
-
-  if (!response.ok) {
-    return [];
+  let response: Response;
+  try {
+    response = await fetch(`${IA_API_URL}/interacoes-ia/pet/${petId}`);
+  } catch {
+    throw new ApiError('Não foi possível conectar ao assistente. Verifique sua internet.');
   }
+
+  // 404: o pet ainda nao tem conversas. Qualquer outra falha precisa aparecer para o usuario.
+  if (response.status === 404) return [];
+  if (!response.ok) throw new ApiError(mensagemAmigavel(response.status), response.status);
 
   return response.json();
 }
