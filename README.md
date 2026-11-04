@@ -269,6 +269,10 @@ tester) está em [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
 **Versão publicada:** Pet Family 1.0.0 (APK Android gerado pelo EAS Build, perfil `preview`),
 distribuída pelo Firebase App Distribution.
 
+- **Firebase App Distribution:** https://console.firebase.google.com/project/pet-family-376b4/appdistribution
+- **Tester:** o professor foi cadastrado como tester com o e-mail institucional
+  `proflucas.santos@fiap.com.br` e recebe o convite por e-mail do Firebase para instalar o app.
+
 | Item | Valor |
 |---|---|
 | Commit que originou o APK | `548fab7d6da2091de0ac5ad246e97c20e1c8ca35` |
