@@ -8,12 +8,12 @@ import {
   StatusBar,
   Dimensions,
   Image,
-  RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientHeader } from '../../src/components/GradientHeader';
+import { ThemedRefreshControl } from '../../src/components/ThemedRefreshControl';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ThemeColors } from '../../src/constants/colors';
 import { useAuth } from '../../src/providers/AuthProvider';
@@ -21,7 +21,9 @@ import { useTheme } from '../../src/providers/ThemeProvider';
 import { usePetsQuery } from '../../src/hooks/usePets';
 import { useMeusLembretesQuery } from '../../src/hooks/useLembretes';
 import { useDashboardQuery } from '../../src/hooks/useDashboard';
+import { useRefresh } from '../../src/hooks/useRefresh';
 import { isoDateToBR } from '../../src/utils/validators';
+import { agruparLembretes } from '../../src/utils/lembretes';
 import type { IoniconName } from '../../src/types/icons';
 
 const { width } = Dimensions.get('window');
@@ -39,7 +41,8 @@ export default function HomeScreen() {
 
   const pets = petsQuery.data?.content ?? [];
   const firstPet = pets[0];
-  const pendentes = (lembretesQuery.data ?? []).filter(l => l.status === 'PENDENTE').slice(0, 3);
+  const todosPendentes = agruparLembretes(lembretesQuery.data ?? []).pendentes;
+  const pendentes = todosPendentes.slice(0, 3);
 
   const categories: { label: string; icon: IoniconName; route: string }[] = isVeterinario
     ? [
@@ -55,13 +58,12 @@ export default function HomeScreen() {
         { label: 'Consulta', icon: 'medical', route: '/appointment' },
       ];
 
-  const pendentesCount = (lembretesQuery.data ?? []).filter(l => l.status === 'PENDENTE').length;
+  const pendentesCount = todosPendentes.length;
 
-  const onRefresh = () => {
-    petsQuery.refetch();
-    if (!isVeterinario) lembretesQuery.refetch();
-    if (isVeterinario) dashboardQuery.refetch();
-  };
+  const { refreshing, onRefresh } = useRefresh(
+    petsQuery.refetch,
+    isVeterinario ? dashboardQuery.refetch : lembretesQuery.refetch
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -70,7 +72,7 @@ export default function HomeScreen() {
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={petsQuery.isRefetching} onRefresh={onRefresh} colors={[colors.primary]} />}
+        refreshControl={<ThemedRefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <GradientHeader colors={[colors.gradientEnd, colors.primary]} style={styles.header}>
           <View style={styles.headerTop}>
