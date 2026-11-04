@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AccountCard } from '../../src/components/about/AccountCard';
 import { AppearanceCard } from '../../src/components/about/AppearanceCard';
 import { AppInfoCard } from '../../src/components/about/AppInfoCard';
+import { NotificationsCard } from '../../src/components/about/NotificationsCard';
 import { ProjectInfo } from '../../src/components/about/ProjectInfo';
 import { TeamSection } from '../../src/components/about/TeamSection';
 import { AboutFooter } from '../../src/components/about/AboutFooter';
@@ -52,6 +53,7 @@ export default function AboutScreen() {
         <View style={styles.sheet}>
           <AccountCard />
           <AppearanceCard />
+          <NotificationsCard />
           <AppInfoCard />
           <ProjectInfo />
           <TeamSection />
