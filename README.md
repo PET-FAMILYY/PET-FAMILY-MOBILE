@@ -51,8 +51,9 @@ clínica, sem mocks e sem dados fictícios nos fluxos avaliados.
 ### Pré-requisitos
 
 - Node.js 18+
-- A API Java rodando localmente (`./mvnw spring-boot:run` no projeto `PET-FAMILY-JAVA`), na
-  porta 9090, perfil `dev` (para ter as contas de demonstração — veja abaixo).
+- Nenhuma API local é necessária: o app já aponta para a API Java e para a API de IA publicadas no
+  Render. Para rodar a API Java localmente (opcional, perfil `dev` para ter as contas de
+  demonstração), use `./mvnw spring-boot:run` no projeto `PET-FAMILY-JAVA`, na porta 9090.
 
 ### Instalação
 
@@ -169,7 +170,7 @@ senha.
 | Consulta | `/appointment` | Tutor/Vet | Agendamento (Tutor) ou agenda clínica (Veterinário) |
 | Clínica (Dashboard) | `/dashboard` | Veterinário | Indicadores reais (`GET /dashboard/resumo`) |
 | Chat | `/chat` | Tutor | Assistente com respostas geradas pela API (ver observação abaixo) |
-| Sobre | `/about` | Tutor/Vet | Dados da conta, aparência (tema), **Sobre o App** (versão e hash do commit), logout e sobre o projeto |
+| Sobre | `/about` | Tutor/Vet | Dados da conta, aparência (tema), permissão de notificações, **Sobre o App** (versão, data do build e hash do commit), logout e sobre o projeto |
 
 Onze telas distintas, todas acessíveis por Expo Router (grupos `(auth)` e `(tabs)`, com rotas
 aninhadas em `pets/` e `agenda/`).
@@ -225,6 +226,10 @@ Tutor — nada é manual nem fixo:
 | Cuidado preventivo pendente (vacina, vermífugo, check-up) | Aviso na **véspera (18h)** e **no dia (9h)** | Abre **Lembretes** |
 | Consulta cancelada/realizada, cuidado concluído/cancelado | Lembretes futuros são **cancelados** automaticamente | — |
 | Logout | Todos os lembretes agendados são cancelados (nada vaza para a próxima conta) | — |
+
+Em **Sobre → Notificações** o usuário vê se a permissão está ativa e pode ativá-la (ou abrir as
+configurações do sistema, se tiver negado). Tocar em uma notificação com o app fechado abre a tela
+correspondente uma única vez por sessão.
 
 Camadas: `services/notificationsService.ts` encapsula o `expo-notifications` (permissão, canal
 Android, agendamento); `services/reminderNotifications.ts` traduz lembretes e consultas da API em
@@ -302,23 +307,29 @@ O Chat não é contado como um dos dois CRUDs, apenas como uma terceira integra�
 ## Organização do código
 
 ```
-app/                    rotas (Expo Router) - (auth) publico, (tabs) protegido
+app/                    rotas (Expo Router) - (auth) publico, (tabs) protegido; so montam a tela
 src/
-  components/           UI reutilizavel (forms, cards, GradientHeader, estados de loading/erro/vazio)
-    about/              blocos da tela Sobre (conta, aparencia, versao/commit, equipe)
+  components/           UI reutilizavel (forms, cards, GradientHeader, ThemedRefreshControl, estados)
+    consultas/          visoes de Consulta por perfil (TutorConsultas, VetConsultas)
+    about/              blocos da tela Sobre (conta, aparencia, notificacoes, versao/commit, equipe)
   constants/colors.ts   paletas clara e escura
   services/              api.ts (axios + interceptors), um arquivo por recurso (*Api.ts),
                          notificationsService.ts e reminderNotifications.ts (notificacoes locais)
-  hooks/                 useQuery/useMutation por recurso, useNotifications.ts e queryKeys.ts centralizado
+  hooks/                 useQuery/useMutation por recurso (queryKeys.ts centralizado) e hooks de tela:
+                         useAgendaLembretes, useLembreteActions, useAgendamentoForm,
+                         useConsultaActions, useRefresh, useNotifications, useNotificationPermission
   providers/             AuthProvider (sessao), ThemeProvider (tema) e QueryProvider (TanStack Query)
   types/                 api.ts (contratos espelhando os DTOs Java) e icons.ts (nomes de icones tipados)
-  utils/                 validators.ts (datas/horas BR e ISO), formValidation.ts (regras dos formularios), appInfo.ts
+  utils/                 validators.ts (datas/horas BR e ISO), formValidation.ts (regras dos formularios),
+                         dialogs.ts (alertas), lembretes.ts e chat.ts (regras puras), appInfo.ts
 ```
 
 Nenhuma tela chama `axios` ou `fetch` diretamente, nem define `useQuery`/`useMutation` inline —
-tudo passa pelos hooks de `src/hooks`. As regras de validação dos formulários de login, cadastro e
-agendamento ficam em `src/utils/formValidation.ts`, e o cabeçalho em gradiente é o componente
-reutilizável `GradientHeader`.
+tudo passa pelos hooks de `src/hooks`. A lógica de tela (agrupar lembretes por status, formulário de
+agendamento, ações com confirmação, montagem das mensagens do chat) também fica em hooks e `utils`,
+não nos componentes. As regras de validação dos formulários ficam em `src/utils/formValidation.ts`,
+os alertas padronizados em `src/utils/dialogs.ts` e o cabeçalho em gradiente é o componente
+reutilizável `GradientHeader`. Para checar os tipos: `npm run typecheck`.
 
 ---
 
