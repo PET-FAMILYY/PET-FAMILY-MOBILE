@@ -19,7 +19,7 @@ import { useTheme } from '../../src/providers/ThemeProvider';
 import { validateLogin } from '../../src/utils/formValidation';
 import { useLoginMutation } from '../../src/hooks/useAuthMutations';
 import { useAuth } from '../../src/providers/AuthProvider';
-import { ApiError } from '../../src/services/api';
+import { getErrorMessage } from '../../src/utils/dialogs';
 
 export default function LoginScreen() {
   const { colors, isDark } = useTheme();
@@ -44,8 +44,7 @@ export default function LoginScreen() {
       { email: email.trim().toLowerCase(), senha: password },
       {
         onError: (err) => {
-          const message = err instanceof ApiError ? err.message : 'Não foi possível entrar. Tente novamente.';
-          setErrors({ general: message });
+          setErrors({ general: getErrorMessage(err, 'Não foi possível entrar. Tente novamente.') });
         },
       }
     );

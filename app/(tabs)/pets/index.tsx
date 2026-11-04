@@ -5,9 +5,7 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   StatusBar,
-  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,7 +16,8 @@ import type { ThemeColors } from '../../../src/constants/colors';
 import { useTheme } from '../../../src/providers/ThemeProvider';
 import { usePetsQuery, useDeletePetMutation } from '../../../src/hooks/usePets';
 import { LoadingState, ErrorState, EmptyState } from '../../../src/components/StateViews';
-import { ApiError } from '../../../src/services/api';
+import { ThemedRefreshControl } from '../../../src/components/ThemedRefreshControl';
+import { confirmAction, showErrorAlert } from '../../../src/utils/dialogs';
 import type { PetResponse } from '../../../src/types/api';
 
 const speciesIcon = (especie: string): MaterialIconName => {
@@ -44,27 +43,19 @@ export default function PetsListScreen() {
     if (pet.totalLembretesPendentes > 0) deps.push(`${pet.totalLembretesPendentes} lembrete(s) pendente(s)`);
     const depsText = deps.length > 0 ? `\n\nAtenção: ${pet.nome} possui ${deps.join(' e ')} vinculados, que também serão removidos.` : '';
 
-    Alert.alert(
-      'Remover pet',
-      `Tem certeza que deseja remover ${pet.nome}? Essa ação não pode ser desfeita.${depsText}`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Remover',
-          style: 'destructive',
-          onPress: () => {
-            setDeletingId(pet.id);
-            deleteMutation.mutate(pet.id, {
-              onError: (err) => {
-                const message = err instanceof ApiError ? err.message : 'Não foi possível remover o pet.';
-                Alert.alert('Erro', message);
-              },
-              onSettled: () => setDeletingId(null),
-            });
-          },
-        },
-      ]
-    );
+    confirmAction({
+      title: 'Remover pet',
+      message: `Tem certeza que deseja remover ${pet.nome}? Essa ação não pode ser desfeita.${depsText}`,
+      confirmLabel: 'Remover',
+      destructive: true,
+      onConfirm: () => {
+        setDeletingId(pet.id);
+        deleteMutation.mutate(pet.id, {
+          onError: (err) => showErrorAlert(err, 'Não foi possível remover o pet.'),
+          onSettled: () => setDeletingId(null),
+        });
+      },
+    });
   };
 
   return (
@@ -99,7 +90,7 @@ export default function PetsListScreen() {
             data={pets}
             keyExtractor={(item) => String(item.id)}
             contentContainerStyle={styles.list}
-            refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
+            refreshControl={<ThemedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.card}

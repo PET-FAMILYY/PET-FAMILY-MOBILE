@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { LembreteForm } from '../../../src/components/LembreteForm';
 import { useCreateLembreteMutation } from '../../../src/hooks/useLembretes';
 import { useAuth } from '../../../src/providers/AuthProvider';
 import { EmptyState } from '../../../src/components/StateViews';
-import { ApiError } from '../../../src/services/api';
+import { showErrorAlert, showSuccessAlert } from '../../../src/utils/dialogs';
 import type { LembreteRequest } from '../../../src/types/api';
 
 export default function NewLembreteScreen() {
@@ -22,15 +22,9 @@ export default function NewLembreteScreen() {
 
   const handleSubmit = (data: LembreteRequest) => {
     createMutation.mutate(data, {
-      onSuccess: (lembrete) => {
-        Alert.alert('Cuidado criado!', `"${lembrete.titulo}" foi agendado para ${lembrete.petNome}.`, [
-          { text: 'OK', onPress: () => router.back() },
-        ]);
-      },
-      onError: (err) => {
-        const message = err instanceof ApiError ? err.message : 'Não foi possível criar o cuidado.';
-        Alert.alert('Erro', message);
-      },
+      onSuccess: (lembrete) =>
+        showSuccessAlert('Cuidado criado!', `"${lembrete.titulo}" foi agendado para ${lembrete.petNome}.`, () => router.back()),
+      onError: (err) => showErrorAlert(err, 'Não foi possível criar o cuidado.'),
     });
   };
 

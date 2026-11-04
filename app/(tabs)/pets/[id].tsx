@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,7 +9,7 @@ import { useTheme } from '../../../src/providers/ThemeProvider';
 import { PetForm, SPECIES, type PetFormValues } from '../../../src/components/PetForm';
 import { usePetQuery, useUpdatePetMutation } from '../../../src/hooks/usePets';
 import { LoadingState, ErrorState } from '../../../src/components/StateViews';
-import { ApiError } from '../../../src/services/api';
+import { showErrorAlert, showSuccessAlert } from '../../../src/utils/dialogs';
 import type { PetRequest } from '../../../src/types/api';
 
 export default function EditPetScreen() {
@@ -35,15 +35,9 @@ export default function EditPetScreen() {
     updateMutation.mutate(
       { id: petId, data },
       {
-        onSuccess: (updated) => {
-          Alert.alert('Pet atualizado!', `${updated.nome} foi atualizado com sucesso.`, [
-            { text: 'OK', onPress: () => router.back() },
-          ]);
-        },
-        onError: (err) => {
-          const message = err instanceof ApiError ? err.message : 'Não foi possível atualizar o pet.';
-          Alert.alert('Erro', message);
-        },
+        onSuccess: (updated) =>
+          showSuccessAlert('Pet atualizado!', `${updated.nome} foi atualizado com sucesso.`, () => router.back()),
+        onError: (err) => showErrorAlert(err, 'Não foi possível atualizar o pet.'),
       }
     );
   };

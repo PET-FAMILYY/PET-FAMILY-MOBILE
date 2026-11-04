@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { LembreteForm } from '../../../src/components/LembreteForm';
 import { useLembreteQuery, useUpdateLembreteMutation } from '../../../src/hooks/useLembretes';
 import { LoadingState, ErrorState, EmptyState } from '../../../src/components/StateViews';
 import { useAuth } from '../../../src/providers/AuthProvider';
-import { ApiError } from '../../../src/services/api';
+import { showErrorAlert, showSuccessAlert } from '../../../src/utils/dialogs';
 import { isoDateToBR } from '../../../src/utils/validators';
 import type { LembreteRequest } from '../../../src/types/api';
 
@@ -37,15 +37,9 @@ export default function EditLembreteScreen() {
     updateMutation.mutate(
       { id: lembreteId, data },
       {
-        onSuccess: (updated) => {
-          Alert.alert('Cuidado atualizado!', `"${updated.titulo}" foi atualizado.`, [
-            { text: 'OK', onPress: () => router.back() },
-          ]);
-        },
-        onError: (err) => {
-          const message = err instanceof ApiError ? err.message : 'Não foi possível atualizar o cuidado.';
-          Alert.alert('Erro', message);
-        },
+        onSuccess: (updated) =>
+          showSuccessAlert('Cuidado atualizado!', `"${updated.titulo}" foi atualizado.`, () => router.back()),
+        onError: (err) => showErrorAlert(err, 'Não foi possível atualizar o cuidado.'),
       }
     );
   };

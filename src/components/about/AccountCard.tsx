@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../providers/AuthProvider';
 import { AboutCard } from './AboutCard';
 import type { ThemeColors } from '../../constants/colors';
 import { useTheme } from '../../providers/ThemeProvider';
+import { confirmAction } from '../../utils/dialogs';
 
 export function AccountCard() {
   const { colors } = useTheme();
@@ -12,10 +13,13 @@ export function AccountCard() {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    Alert.alert('Sair', 'Deseja encerrar sua sessão?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => logout() },
-    ]);
+    confirmAction({
+      title: 'Sair',
+      message: 'Deseja encerrar sua sessão?',
+      confirmLabel: 'Sair',
+      destructive: true,
+      onConfirm: () => logout(),
+    });
   };
 
   return (

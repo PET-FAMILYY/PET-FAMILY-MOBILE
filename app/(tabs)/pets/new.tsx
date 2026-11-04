@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,7 +8,7 @@ import type { ThemeColors } from '../../../src/constants/colors';
 import { useTheme } from '../../../src/providers/ThemeProvider';
 import { PetForm, SPECIES, emptyPetForm, type PetFormValues } from '../../../src/components/PetForm';
 import { useCreatePetMutation } from '../../../src/hooks/usePets';
-import { ApiError } from '../../../src/services/api';
+import { showErrorAlert, showSuccessAlert } from '../../../src/utils/dialogs';
 import type { PetRequest } from '../../../src/types/api';
 
 export default function NewPetScreen() {
@@ -20,15 +20,9 @@ export default function NewPetScreen() {
 
   const handleSubmit = (data: PetRequest) => {
     createMutation.mutate(data, {
-      onSuccess: (pet) => {
-        Alert.alert('Pet cadastrado!', `${pet.nome} foi cadastrado com sucesso.`, [
-          { text: 'OK', onPress: () => router.back() },
-        ]);
-      },
-      onError: (err) => {
-        const message = err instanceof ApiError ? err.message : 'Não foi possível cadastrar o pet.';
-        Alert.alert('Erro', message);
-      },
+      onSuccess: (pet) =>
+        showSuccessAlert('Pet cadastrado!', `${pet.nome} foi cadastrado com sucesso.`, () => router.back()),
+      onError: (err) => showErrorAlert(err, 'Não foi possível cadastrar o pet.'),
     });
   };
 
