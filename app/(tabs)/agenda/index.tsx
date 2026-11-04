@@ -1,20 +1,15 @@
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { GradientHeader } from '../../../src/components/GradientHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { LembreteCard } from '../../../src/components/LembreteCard';
 import { LoadingState, ErrorState, EmptyState } from '../../../src/components/StateViews';
+import { ThemedRefreshControl } from '../../../src/components/ThemedRefreshControl';
 import { useAuth } from '../../../src/providers/AuthProvider';
-import {
-  useMeusLembretesQuery,
-  useLembretesQuery,
-  useConcluirLembreteMutation,
-  useCancelarLembreteMutation,
-  useDeleteLembreteMutation,
-} from '../../../src/hooks/useLembretes';
-import { ApiError } from '../../../src/services/api';
+import { useAgendaLembretes } from '../../../src/hooks/useAgendaLembretes';
+import { useLembreteActions } from '../../../src/hooks/useLembreteActions';
 import type { ThemeColors } from '../../../src/constants/colors';
 import { useTheme } from '../../../src/providers/ThemeProvider';
 import type { LembreteResponse } from '../../../src/types/api';
@@ -25,62 +20,9 @@ export default function AgendaScreen() {
   const router = useRouter();
   const { isVeterinario } = useAuth();
 
-  const tutorQuery = useMeusLembretesQuery(!isVeterinario);
-  const vetQuery = useLembretesQuery({ size: 50 }, isVeterinario);
-
-  const isLoading = isVeterinario ? vetQuery.isLoading : tutorQuery.isLoading;
-  const isError = isVeterinario ? vetQuery.isError : tutorQuery.isError;
-  const isRefetching = isVeterinario ? vetQuery.isRefetching : tutorQuery.isRefetching;
-  const refetch = isVeterinario ? vetQuery.refetch : tutorQuery.refetch;
-  const lembretes: LembreteResponse[] = isVeterinario ? (vetQuery.data?.content ?? []) : (tutorQuery.data ?? []);
-
-  const concluirMutation = useConcluirLembreteMutation();
-  const cancelarMutation = useCancelarLembreteMutation();
-  const deleteMutation = useDeleteLembreteMutation();
-  const busy = concluirMutation.isPending || cancelarMutation.isPending || deleteMutation.isPending;
-
-  const handleError = (err: unknown, fallback: string) => {
-    const message = err instanceof ApiError ? err.message : fallback;
-    Alert.alert('Erro', message);
-  };
-
-  const handleConcluir = (lembrete: LembreteResponse) => {
-    Alert.alert('Concluir cuidado', `Confirmar que "${lembrete.titulo}" foi realizado?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Confirmar',
-        onPress: () => concluirMutation.mutate(lembrete.id, { onError: (e) => handleError(e, 'Não foi possível concluir.') }),
-      },
-    ]);
-  };
-
-  const handleCancelar = (lembrete: LembreteResponse) => {
-    Alert.alert('Cancelar cuidado', `Cancelar "${lembrete.titulo}"?`, [
-      { text: 'Voltar', style: 'cancel' },
-      {
-        text: 'Cancelar cuidado',
-        style: 'destructive',
-        onPress: () => cancelarMutation.mutate(lembrete.id, { onError: (e) => handleError(e, 'Não foi possível cancelar.') }),
-      },
-    ]);
-  };
-
-  const handleDelete = (lembrete: LembreteResponse) => {
-    Alert.alert('Remover cuidado', `Remover "${lembrete.titulo}" definitivamente?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Remover',
-        style: 'destructive',
-        onPress: () => deleteMutation.mutate(lembrete.id, { onError: (e) => handleError(e, 'Não foi possível remover.') }),
-      },
-    ]);
-  };
-
-  const pending = lembretes.filter(r => r.status === 'PENDENTE');
-  const done = lembretes.filter(r => r.status === 'CONCLUIDO');
-  const cancelled = lembretes.filter(r => r.status === 'CANCELADO');
-  const total = lembretes.length;
-  const pct = total > 0 ? Math.round((done.length / total) * 100) : 0;
+  const { pendentes, concluidos, cancelados, total, progresso, isLoading, isError, isRefetching, refetch } =
+    useAgendaLembretes();
+  const { busy, concluir, cancelar, remover } = useLembreteActions();
 
   const renderCard = (item: LembreteResponse) => (
     <LembreteCard
@@ -88,10 +30,10 @@ export default function AgendaScreen() {
       lembrete={item}
       showPetName={isVeterinario}
       busy={busy}
-      onConcluir={!isVeterinario ? () => handleConcluir(item) : undefined}
-      onCancelar={isVeterinario ? () => handleCancelar(item) : undefined}
+      onConcluir={!isVeterinario ? () => concluir(item) : undefined}
+      onCancelar={isVeterinario ? () => cancelar(item) : undefined}
       onEdit={isVeterinario ? () => router.push(`/agenda/${item.id}`) : undefined}
-      onDelete={isVeterinario ? () => handleDelete(item) : undefined}
+      onDelete={isVeterinario ? () => remover(item) : undefined}
     />
   );
 
@@ -102,7 +44,7 @@ export default function AgendaScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} colors={[colors.primary]} />}
+        refreshControl={<ThemedRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
       >
         <GradientHeader style={styles.header}>
           <View style={styles.headerTopRow}>
@@ -123,17 +65,17 @@ export default function AgendaScreen() {
           {total > 0 && (
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <Text style={styles.statNum}>{pending.length}</Text>
+                <Text style={styles.statNum}>{pendentes.length}</Text>
                 <Text style={styles.statLabel}>Pendentes</Text>
               </View>
               <View style={styles.statSep} />
               <View style={styles.statItem}>
-                <Text style={styles.statNum}>{done.length}</Text>
+                <Text style={styles.statNum}>{concluidos.length}</Text>
                 <Text style={styles.statLabel}>Concluídos</Text>
               </View>
               <View style={styles.statSep} />
               <View style={styles.statItem}>
-                <Text style={[styles.statNum, styles.statNumAccent]}>{pct}%</Text>
+                <Text style={[styles.statNum, styles.statNumAccent]}>{progresso}%</Text>
                 <Text style={[styles.statLabel, styles.statLabelAccent]}>Progresso</Text>
               </View>
             </View>
@@ -162,31 +104,31 @@ export default function AgendaScreen() {
             />
           ) : (
             <>
-              {pending.length > 0 && (
+              {pendentes.length > 0 && (
                 <View style={styles.section}>
                   <View style={styles.sectionHeader}>
                     <View style={[styles.sectionDot, { backgroundColor: '#F59E0B' }]} />
                     <Text style={styles.sectionTitle}>Pendentes</Text>
                   </View>
-                  {pending.map(renderCard)}
+                  {pendentes.map(renderCard)}
                 </View>
               )}
-              {done.length > 0 && (
+              {concluidos.length > 0 && (
                 <View style={styles.section}>
                   <View style={styles.sectionHeader}>
                     <View style={[styles.sectionDot, { backgroundColor: '#10B981' }]} />
                     <Text style={styles.sectionTitle}>Concluídos</Text>
                   </View>
-                  {done.map(renderCard)}
+                  {concluidos.map(renderCard)}
                 </View>
               )}
-              {cancelled.length > 0 && (
+              {cancelados.length > 0 && (
                 <View style={styles.section}>
                   <View style={styles.sectionHeader}>
                     <View style={[styles.sectionDot, { backgroundColor: '#9CA3AF' }]} />
                     <Text style={styles.sectionTitle}>Cancelados</Text>
                   </View>
-                  {cancelled.map(renderCard)}
+                  {cancelados.map(renderCard)}
                 </View>
               )}
             </>
