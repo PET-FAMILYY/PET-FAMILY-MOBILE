@@ -1,11 +1,12 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '../types/api';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:9090';
-    
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://petfamily-api.onrender.com';
+
+// O Render (plano gratuito) "dorme" por inatividade: a primeira chamada pode levar ~40s.
 export const api = axios.create({
   baseURL: API_URL,
-  timeout: 15000,
+  timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 });
 
