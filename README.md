@@ -3,7 +3,7 @@
 App de cuidado contínuo para pets, integrado à API Java PET-FAMILY-JAVA (Spring Boot).
 Sprint 4 (entrega final) — Mobile Application Development.
 
-📹 **Vídeo de apresentação (Sprint 4):** _link a ser adicionado após a gravação_
+📹 **Vídeo de apresentação (Sprint 4):** https://youtu.be/8ehvkCbqVEE
 
 📹 Vídeo da Sprint 3: https://youtu.be/KfhxMpY1Bdk
 
@@ -265,6 +265,18 @@ Se o build for feito com alterações não commitadas, a tela mostra "(alteraç�
 
 O passo a passo (build com EAS, upload no Firebase App Distribution e cadastro do professor como
 tester) está em [docs/PUBLICACAO.md](docs/PUBLICACAO.md).
+
+**Versão publicada:** Pet Family 1.0.0 (APK Android gerado pelo EAS Build, perfil `preview`),
+distribuída pelo Firebase App Distribution.
+
+| Item | Valor |
+|---|---|
+| Commit que originou o APK | `548fab7d6da2091de0ac5ad246e97c20e1c8ca35` |
+| Onde conferir no app | aba **Sobre** → **Sobre o App** → hash completo do commit |
+| Código dessa versão | `git checkout 548fab7` |
+
+O hash exibido na tela Sobre do APK é o mesmo do commit acima. Commits posteriores a ele alteram
+apenas a documentação (README), não o código do aplicativo.
 
 ---
 
