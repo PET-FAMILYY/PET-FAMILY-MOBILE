@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { brDateToIso, timeToApiFormat } from '../utils/validators';
 import { validateAgendamento } from '../utils/formValidation';
 import { showErrorAlert } from '../utils/dialogs';
+import { maskDate, maskTime } from '../utils/masks';
 import { useAgendarConsultaMutation } from './useConsultas';
 
 export interface AgendamentoValues {
@@ -10,6 +11,12 @@ export interface AgendamentoValues {
   horario: string;
   observacoes: string;
 }
+
+// Campos com formato fixo recebem a mascara enquanto o usuario digita.
+const FIELD_MASKS: Partial<Record<keyof AgendamentoValues, (value: string) => string>> = {
+  data: maskDate,
+  horario: maskTime,
+};
 
 type AgendamentoErrors = Partial<Record<'petId' | 'data' | 'horario', string>>;
 
@@ -28,7 +35,8 @@ export const useAgendamentoForm = () => {
 
   // Qualquer alteracao invalida a confirmacao anterior.
   const setField = (field: keyof AgendamentoValues) => (value: string) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
+    const mask = FIELD_MASKS[field];
+    setValues((prev) => ({ ...prev, [field]: mask ? mask(value) : value }));
     setConfirmed(false);
   };
 

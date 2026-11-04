@@ -7,6 +7,7 @@ import { useTheme } from '../providers/ThemeProvider';
 import type { IoniconName } from '../types/icons';
 import { usePetsQuery } from '../hooks/usePets';
 import { brDateToIso, isFutureDateTime, isoDateToBR } from '../utils/validators';
+import { maskDate } from '../utils/masks';
 import { LoadingState, ErrorState } from './StateViews';
 import type { LembreteRequest } from '../types/api';
 
@@ -110,7 +111,7 @@ export const LembreteForm: React.FC<LembreteFormProps> = ({ initialValues, onSub
 
       <View style={styles.rowFields}>
         <View style={{ flex: 1 }}>
-          <Field label="Data *" icon="calendar-outline" value={form.dataLembrete} onChangeText={v => update('dataLembrete', v)} placeholder="DD/MM/AAAA" keyboardType="numeric" error={errors.dataLembrete} />
+          <Field label="Data *" icon="calendar-outline" value={form.dataLembrete} onChangeText={v => update('dataLembrete', maskDate(v))} placeholder="DD/MM/AAAA" keyboardType="numeric" error={errors.dataLembrete} />
         </View>
         <View style={{ flex: 1 }}>
           <Field label="Recorrência (dias)" icon="repeat-outline" value={form.recorrenciaDias} onChangeText={v => update('recorrenciaDias', v)} placeholder="Ex: 365" keyboardType="numeric" error={errors.recorrenciaDias} />
